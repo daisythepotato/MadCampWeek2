@@ -3,6 +3,7 @@ package com.example.auctionkingdom
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -11,6 +12,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.common.SignInButton
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,6 +67,7 @@ class MainActivity : AppCompatActivity() {
             val account = completedTask.getResult(ApiException::class.java)
             // Signed in successfully
             updateUI(account)
+            saveUserToServer(account)
         } catch (e: ApiException) {
             // Sign in failed
             updateUI(null)
@@ -74,12 +79,35 @@ class MainActivity : AppCompatActivity() {
             // Display user's information
             tvName.text = account.displayName
             tvEmail.text = account.email
-            tvProfileUrl.text = account.photoUrl.toString()
+            tvProfileUrl.text = account.photoUrl?.toString() ?: "No Profile URL"
         } else {
             // Handle sign-in failure
             tvName.text = "Name"
             tvEmail.text = "Email"
             tvProfileUrl.text = "Profile URL"
         }
+    }
+
+    private fun saveUserToServer(account: GoogleSignInAccount) {
+        val user = User(
+            name = account.displayName ?: "",
+            email = account.email ?: "",
+            profileUrl = account.photoUrl?.toString()
+        )
+
+        val call = RetrofitClient.instance.saveUser(user)
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@MainActivity, "User saved successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to save user", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
