@@ -21,21 +21,26 @@ class ProfileSetupActivity : AppCompatActivity() {
         val email = intent.getStringExtra("email")
         val name = intent.getStringExtra("name")
 
-        val nameEditText: EditText = findViewById(R.id.name_edit_text)
-        nameEditText.setText(name)
+        val nicknameEditText: EditText = findViewById(R.id.nickname_edit_text)
+        val kingdomNameEditText: EditText = findViewById(R.id.kingdom_name_edit_text)
 
         val saveButton: Button = findViewById(R.id.save_button)
         saveButton.setOnClickListener {
-            val updatedName = nameEditText.text.toString()
-            saveUserProfile(email ?: "", updatedName)
+            val nickname = nicknameEditText.text.toString()
+            val kingdomName = kingdomNameEditText.text.toString()
+            if (nickname.isNotEmpty() && kingdomName.isNotEmpty()) {
+                saveUserProfile(email ?: "", nickname, kingdomName)
+            } else {
+                Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun saveUserProfile(email: String, name: String) {
+    private fun saveUserProfile(email: String, nickname: String, kingdomName: String) {
         val json = JSONObject().apply {
             put("email", email)
-            put("name", name)
-            put("profileUrl", "")  // 추가 프로필 정보 필요시 추가
+            put("nickname", nickname)
+            put("kingdomName", kingdomName)
         }
 
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json.toString())

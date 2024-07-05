@@ -4,12 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.SignInButton
+import com.google.android.gms.common.api.ApiException
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONObject
@@ -35,18 +37,37 @@ class LoginActivity : AppCompatActivity() {
         // Google Sign-In 버튼 클릭 리스너
         val googleSignInButton: SignInButton = findViewById(R.id.btn_google_sign_in)
         googleSignInButton.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, RC_SIGN_IN)
+            signOutAndSignIn()
         }
 
         // Guest 버튼 클릭 리스너
         val guestButton: Button = findViewById(R.id.btn_guest)
         guestButton.setOnClickListener {
-            // 게스트 로그인 처리
+            showGuestDialog()
+        }
+    }
+
+    private fun showGuestDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Guest Login")
+        builder.setMessage("Guest 로그인은 랭킹과 티어가 저장되지 않습니다.\n로그인 하시겠습니까?")
+        builder.setPositiveButton("예") { dialog, _ ->
+            dialog.dismiss()
             Toast.makeText(this, "Logged in as Guest", Toast.LENGTH_SHORT).show()
-            // 다음 액티비티로 이동
             startActivity(Intent(this, MainActivity::class.java))
             finish()
+        }
+        builder.setNegativeButton("아니오") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun signOutAndSignIn() {
+        googleSignInClient.signOut().addOnCompleteListener(this) {
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
         }
     }
 
@@ -57,7 +78,8 @@ class LoginActivity : AppCompatActivity() {
             try {
                 val account = task.getResult(ApiException::class.java)
                 if (account != null) {
-                    checkUserInDatabase(account.email ?: "", account.displayName ?: "")
+                    // 구글 로그인 성공
+                    checkUserInDatabase(account)
                 }
             } catch (e: ApiException) {
                 // 로그인 실패 처리
@@ -66,9 +88,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkUserInDatabase(email: String, name: String) {
+    private fun checkUserInDatabase(account: GoogleSignInAccount) {
         val json = JSONObject().apply {
-            put("email", email)
+            put("email", account.email)
         }
 
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json.toString())
@@ -93,13 +115,13 @@ class LoginActivity : AppCompatActivity() {
                         if (exists) {
                             // 사용자 정보가 DB에 있음
                             val user = jsonResponse.getJSONObject("user")
-                            Toast.makeText(this@LoginActivity, "Welcome back, ${user.getString("name")}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@LoginActivity, "Welcome back, ${user.getString("nickname")}", Toast.LENGTH_SHORT).show()
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                         } else {
                             // 사용자 정보가 DB에 없음
                             val intent = Intent(this@LoginActivity, ProfileSetupActivity::class.java)
-                            intent.putExtra("email", email)
-                            intent.putExtra("name", name)
+                            intent.putExtra("email", account.email)
+                            intent.putExtra("name", account.displayName)
                             startActivity(intent)
                         }
                         finish()
