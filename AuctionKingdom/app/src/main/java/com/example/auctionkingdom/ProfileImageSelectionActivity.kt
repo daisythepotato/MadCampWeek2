@@ -3,6 +3,7 @@ package com.example.auctionkingdom
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,9 +32,18 @@ class ProfileImageSelectionActivity : AppCompatActivity() {
         val kingdomName = intent.getStringExtra("kingdomName")
 
         val viewPager: ViewPager2 = findViewById(R.id.viewPager)
+        val pageNumberTextView: TextView = findViewById(R.id.page_number_text)
         val selectButton: Button = findViewById(R.id.select_button)
 
         viewPager.adapter = ViewPagerAdapter(this, profileImages)
+        pageNumberTextView.text = "1 / ${profileImages.size}"
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                pageNumberTextView.text = "${position + 1} / ${profileImages.size}"
+            }
+        })
 
         selectButton.setOnClickListener {
             val selectedPosition = viewPager.currentItem

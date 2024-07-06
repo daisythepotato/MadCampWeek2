@@ -1,31 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".ProfileImageSelectionActivity">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Choose Your Profile"
-        android:textSize="24sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/select_button"
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:id="@+id/page_number_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/select_button"
+        android:layout_marginBottom="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:text="1 / 4"/>
 
     <Button
         android:id="@+id/select_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="SELECT"
-        android:layout_marginTop="16dp" />
-</LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Select" />
+</RelativeLayout>
