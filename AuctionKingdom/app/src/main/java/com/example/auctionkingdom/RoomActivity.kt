@@ -106,6 +106,11 @@ class RoomActivity : AppCompatActivity() {
                             Toast.makeText(this@RoomActivity, "Room created: $roomCode", Toast.LENGTH_SHORT).show()
                             fetchRooms() // 방 목록 갱신
                             fetchUserRooms(email) // 사용자가 속한 방 목록 갱신
+
+                            // RoomDetailActivity로 이동
+                            val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
+                            intent.putExtra("roomCode", roomCode)
+                            startActivity(intent)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
@@ -154,6 +159,10 @@ class RoomActivity : AppCompatActivity() {
                             startActivity(intent)
                         } else if (success) {
                             Toast.makeText(this@RoomActivity, "Waiting for another player", Toast.LENGTH_SHORT).show()
+                            // RoomDetailActivity로 이동
+                            val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
+                            intent.putExtra("roomCode", code)
+                            startActivity(intent)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }

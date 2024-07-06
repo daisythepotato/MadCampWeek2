@@ -26,6 +26,7 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".ProfileSetupActivity"/>
         <activity android:name=".RoomActivity"/>
+        <activity android:name=".RoomDetailActivity"/>
     </application>
 
 </manifest>
