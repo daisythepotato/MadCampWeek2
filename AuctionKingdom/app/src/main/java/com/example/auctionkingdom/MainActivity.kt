@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         val swordsIcon: ImageView = findViewById(R.id.nav_swords)
         swordsIcon.setOnClickListener {
             val intent = Intent(this, RoomActivity::class.java)
+            intent.putExtra("email", email)
             startActivity(intent)
         }
     }
