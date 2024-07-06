@@ -1,5 +1,6 @@
 package com.example.auctionkingdom
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -86,10 +87,13 @@ class RoomActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         val gameState = jsonResponse.getString("gameState")
-                        if (success && gameState == "ready") {
-                            Toast.makeText(this@RoomActivity, "Room joined, game is ready to start", Toast.LENGTH_SHORT).show()
+                        if (success && gameState == "started") {
+                            Toast.makeText(this@RoomActivity, "Game started", Toast.LENGTH_SHORT).show()
+                            // 게임 화면으로 이동
+                            val intent = Intent(this@RoomActivity, GameActivity::class.java)
+                            startActivity(intent)
                         } else if (success) {
-                            Toast.makeText(this@RoomActivity, "Room joined, waiting for another player", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@RoomActivity, "Waiting for another player", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
