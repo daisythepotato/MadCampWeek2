@@ -87,7 +87,7 @@
                     android:id="@+id/profile_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/profile_placeholder"
+                    android:src="@drawable/profile_image_1"
                     android:scaleType="centerCrop"
                     android:contentDescription="Profile Image" />
             </androidx.cardview.widget.CardView>

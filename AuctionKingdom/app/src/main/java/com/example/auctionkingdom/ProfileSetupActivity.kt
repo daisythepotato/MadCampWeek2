@@ -58,7 +58,13 @@ class ProfileSetupActivity : AppCompatActivity() {
             val nickname = nicknameEditText.text.toString()
             val kingdomName = kingdomNameEditText.text.toString()
             if (nickname.isNotEmpty() && kingdomName.isNotEmpty() && isKingdomNameAvailable && isNicknameAvailable) {
-                saveUserProfile(email ?: "", nickname, kingdomName)
+                val intent = Intent(this@ProfileSetupActivity, ProfileImageSelectionActivity::class.java).apply {
+                    putExtra("email", email)
+                    putExtra("nickname", nickname)
+                    putExtra("kingdomName", kingdomName)
+                }
+                startActivity(intent)
+                finish()
             } else {
                 showAlertDialog("Please fill out all fields and ensure names are available")
             }
@@ -133,41 +139,6 @@ class ProfileSetupActivity : AppCompatActivity() {
                     } catch (e: Exception) {
                         showAlertDialog("Error parsing server response: ${e.message}")
                     }
-                }
-            }
-        })
-    }
-
-    private fun saveUserProfile(email: String, nickname: String, kingdomName: String) {
-        val json = JSONObject().apply {
-            put("email", email)
-            put("nickname", nickname)
-            put("kingdomName", kingdomName)
-        }
-
-        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json.toString())
-        val request = Request.Builder()
-            .url("http://172.10.7.80:80/api/saveUser")
-            .post(body)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    showAlertDialog("Failed to save profile: ${e.message}")
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    Toast.makeText(this@ProfileSetupActivity, "Profile saved successfully", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this@ProfileSetupActivity, MainActivity::class.java).apply {
-                        putExtra("email", email)
-                        putExtra("nickname", nickname)
-                        putExtra("kingdomName", kingdomName)
-                    }
-                    startActivity(intent)
-                    finish()
                 }
             }
         })

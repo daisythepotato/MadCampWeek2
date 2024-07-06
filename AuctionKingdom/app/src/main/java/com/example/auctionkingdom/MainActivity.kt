@@ -23,25 +23,21 @@ class MainActivity : AppCompatActivity() {
         val profileNameTextView: TextView = findViewById(R.id.profile_name)
         val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
         val scoreTextView: TextView = findViewById(R.id.score_text)
-        val coinTextView: TextView = findViewById(R.id.coin_text) // 추가된 부분
-
-        // 프로필 사진 설정
-        val profileImageView: ImageView = findViewById(R.id.profile_image)
-        profileImageView.setImageResource(R.drawable.profile_placeholder) // 실제 이미지를 사용하려면 이 부분을 변경합니다.
+        val coinTextView: TextView = findViewById(R.id.coin_text)
+        val profileImageView: ImageView = findViewById(R.id.profile_image) // 추가된 부분
 
         // 사용자 데이터 불러오기
-        fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView, coinTextView)
+        fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView, coinTextView, profileImageView)
 
         // 방 생성 및 입장 화면으로 이동
         val swordsIcon: ImageView = findViewById(R.id.nav_swords)
         swordsIcon.setOnClickListener {
             val intent = Intent(this, RoomActivity::class.java)
-            intent.putExtra("email", email)
             startActivity(intent)
         }
     }
 
-    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, scoreTextView: TextView, coinTextView: TextView) {
+    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, scoreTextView: TextView, coinTextView: TextView, profileImageView: ImageView) {
         if (email == null) {
             return
         }
@@ -58,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                     profileNameTextView.text = "Failed to load data"
                     kingdomNameTextView.text = ""
                     scoreTextView.text = ""
-                    coinTextView.text = "" // 추가된 부분
+                    coinTextView.text = ""
                 }
             }
 
@@ -70,17 +66,19 @@ class MainActivity : AppCompatActivity() {
                         val nickname = jsonResponse.getString("nickname")
                         val kingdomName = jsonResponse.getString("kingdomName")
                         val score = jsonResponse.getInt("score")
-                        val coins = jsonResponse.getInt("coins") // 추가된 부분
+                        val coins = jsonResponse.getInt("coins")
+                        val profileImageRes = jsonResponse.getInt("profileImage") // 추가된 부분
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         scoreTextView.text = "Score: $score"
-                        coinTextView.text = coins.toString() // 추가된 부분
+                        coinTextView.text = coins.toString()
+                        profileImageView.setImageResource(profileImageRes) // 추가된 부분
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
                         scoreTextView.text = ""
-                        coinTextView.text = "" // 추가된 부분
+                        coinTextView.text = ""
                     }
                 }
             }
