@@ -7,23 +7,88 @@
     android:padding="16dp"
     tools:context=".ProfileSetupActivity">
 
-    <EditText
-        android:id="@+id/nickname_edit_text"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/text_kingdom"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Enter your nickname" />
+        android:text="KINGDOM"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:padding="8dp"/>
 
-    <EditText
-        android:id="@+id/kingdom_name_edit_text"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your kingdom name"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/kingdom_name_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Enter your kingdom name"
+            android:padding="8dp"/>
+
+        <Button
+            android:id="@+id/check_kingdom_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Check"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/kingdom_name_result_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/text_king"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KING"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:padding="8dp"
+        android:layout_marginTop="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/nickname_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Enter your name"
+            android:padding="8dp"/>
+
+        <Button
+            android:id="@+id/check_nickname_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Check"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/nickname_result_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/save_button"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save Profile"
-        android:layout_marginTop="16dp" />
+        android:text="생성"
+        android:layout_gravity="center"
+        android:layout_marginTop="32dp"/>
 </LinearLayout>
