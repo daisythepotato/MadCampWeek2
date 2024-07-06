@@ -1,5 +1,6 @@
 package com.example.auctionkingdom
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         val profileNameTextView: TextView = findViewById(R.id.profile_name)
         val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
         val scoreTextView: TextView = findViewById(R.id.score_text)
-        val coinTextView: TextView = findViewById(R.id.coin_text)
+        val coinTextView: TextView = findViewById(R.id.coin_text) // 추가된 부분
 
         // 프로필 사진 설정
         val profileImageView: ImageView = findViewById(R.id.profile_image)
@@ -45,6 +46,13 @@ class MainActivity : AppCompatActivity() {
 
         // 사용자 데이터 불러오기
         fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView, coinTextView)
+
+        // 방 생성 및 입장 화면으로 이동
+        val swordsIcon: ImageView = findViewById(R.id.nav_swords)
+        swordsIcon.setOnClickListener {
+            val intent = Intent(this, RoomActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, scoreTextView: TextView, coinTextView: TextView) {
@@ -64,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     profileNameTextView.text = "Failed to load data"
                     kingdomNameTextView.text = ""
                     scoreTextView.text = ""
-                    coinTextView.text = ""
+                    coinTextView.text = "" // 추가된 부분
                 }
             }
 
@@ -76,17 +84,17 @@ class MainActivity : AppCompatActivity() {
                         val nickname = jsonResponse.getString("nickname")
                         val kingdomName = jsonResponse.getString("kingdomName")
                         val score = jsonResponse.getInt("score")
-                        val coins = jsonResponse.getInt("coins")
+                        val coins = jsonResponse.getInt("coins") // 추가된 부분
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         scoreTextView.text = "Score: $score"
-                        coinTextView.text = coins.toString()
+                        coinTextView.text = coins.toString() // 추가된 부분
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
                         scoreTextView.text = ""
-                        coinTextView.text = ""
+                        coinTextView.text = "" // 추가된 부분
                     }
                 }
             }
