@@ -1,32 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".MainActivity">
 
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/sign_in_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/text_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="18sp"
+        android:padding="8dp"/>
 
     <TextView
-        android:id="@+id/tvName"
-        android:layout_width="wrap_content"
+        android:id="@+id/text_nickname"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Name"
-        android:layout_marginTop="16dp"/>
+        android:text="Nickname:"
+        android:textSize="18sp"
+        android:padding="8dp"/>
 
     <TextView
-        android:id="@+id/tvEmail"
-        android:layout_width="wrap_content"
+        android:id="@+id/text_kingdom_name"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Email" />
-
-    <TextView
-        android:id="@+id/tvProfileUrl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Profile URL" />
-
+        android:text="Kingdom Name:"
+        android:textSize="18sp"
+        android:padding="8dp"/>
 </LinearLayout>
