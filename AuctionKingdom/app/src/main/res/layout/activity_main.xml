@@ -115,19 +115,31 @@
                     android:textSize="20sp" />
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/nav_swords"
-                android:layout_width="0dp"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:src="@drawable/swords_icon"
-                android:contentDescription="Swords" />
         </LinearLayout>
 
 
     </androidx.cardview.widget.CardView>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottom_navigation">
 
+        <ImageView
+            android:id="@+id/nav_swords"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:contentDescription="Swords"
+            android:src="@drawable/swords_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_default="wrap"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.6" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Bottom Navigation -->
     <LinearLayout
