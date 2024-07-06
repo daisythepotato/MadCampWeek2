@@ -1,43 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".RoomActivity">
+    android:padding="16dp">
 
-    <!-- Room code EditText -->
     <EditText
         android:id="@+id/create_room_code_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter room code to create"
-        android:inputType="text"
-        android:layout_marginBottom="16dp"/>
+        android:hint="Enter Room Code to Create" />
 
-    <!-- Create Room Button -->
     <Button
         android:id="@+id/create_room_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CREATE ROOM" />
+        android:text="Create Room" />
 
-    <!-- Room code EditText for joining a room -->
     <EditText
         android:id="@+id/join_room_code_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter room code to join"
-        android:inputType="text"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:hint="Enter Room Code to Join" />
 
-    <!-- Join Room Button -->
     <Button
         android:id="@+id/join_room_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="JOIN ROOM" />
+        android:text="Join Room" />
 
+    <TextView
+        android:id="@+id/rooms_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Available Rooms" />
+
+    <TextView
+        android:id="@+id/user_rooms_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Your Rooms" />
 </LinearLayout>
