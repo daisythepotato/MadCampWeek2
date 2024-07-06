@@ -19,24 +19,27 @@ class RoomActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var roomsTextView: TextView
     private lateinit var userRoomsTextView: TextView
+    private var email: String? = null // email 변수를 클래스 수준에서 선언
+    private var currentRoomCode: String? = null // 현재 사용자가 속한 방 코드를 추적하기 위한 변수
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
 
-        val email = intent.getStringExtra("email")
+        email = intent.getStringExtra("email") // onCreate에서 email 초기화
 
         val createRoomButton: Button = findViewById(R.id.create_room_button)
         val joinRoomButton: Button = findViewById(R.id.join_room_button)
+        val leaveRoomButton: Button = findViewById(R.id.leave_room_button)
         val createRoomCodeEditText: EditText = findViewById(R.id.create_room_code_edit_text)
         val joinRoomCodeEditText: EditText = findViewById(R.id.join_room_code_edit_text)
         roomsTextView = findViewById(R.id.rooms_text_view)
-        userRoomsTextView = findViewById(R.id.user_rooms_text_view) // 추가된 부분
+        userRoomsTextView = findViewById(R.id.user_rooms_text_view)
 
         createRoomButton.setOnClickListener {
             val roomCode = createRoomCodeEditText.text.toString()
             if (email != null) {
-                createRoom(roomCode, email)
+                createRoom(roomCode, email!!)
             } else {
                 Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show()
             }
@@ -45,9 +48,17 @@ class RoomActivity : AppCompatActivity() {
         joinRoomButton.setOnClickListener {
             val roomCode = joinRoomCodeEditText.text.toString()
             if (email != null) {
-                joinRoom(roomCode, email)
+                joinRoom(roomCode, email!!)
             } else {
                 Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        leaveRoomButton.setOnClickListener {
+            if (currentRoomCode != null && email != null) {
+                leaveRoom(currentRoomCode!!, email!!)
+            } else {
+                Toast.makeText(this, "You are not currently in any room", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -56,7 +67,7 @@ class RoomActivity : AppCompatActivity() {
 
         // 사용자가 속한 방 목록 가져오기
         if (email != null) {
-            fetchUserRooms(email)
+            fetchUserRooms(email!!)
         }
     }
 
@@ -146,7 +157,52 @@ class RoomActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
+                        currentRoomCode = code // 현재 사용자가 속한 방 코드 업데이트
                         fetchUserRooms(email) // 사용자가 속한 방 목록 갱신
+                    } catch (e: Exception) {
+                        Log.e("RoomActivity", "Failed to parse response", e)
+                        Toast.makeText(this@RoomActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun leaveRoom(code: String, email: String) {
+        val json = JSONObject().apply {
+            put("code", code)
+            put("email", email)
+        }
+
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/leaveRoom")
+            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
+            .build()
+
+        Log.d("RoomActivity", "Sending request to leave room: $json")
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Log.e("RoomActivity", "Failed to leave room", e)
+                    Toast.makeText(this@RoomActivity, "Failed to leave room", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
+                Log.d("RoomActivity", "Response: $responseData")
+                runOnUiThread {
+                    try {
+                        val jsonResponse = JSONObject(responseData)
+                        val success = jsonResponse.getBoolean("success")
+                        if (success) {
+                            Toast.makeText(this@RoomActivity, "Left the room successfully", Toast.LENGTH_SHORT).show()
+                            currentRoomCode = null // 현재 사용자가 속한 방 코드 초기화
+                            fetchUserRooms(email) // 사용자가 속한 방 목록 갱신
+                        } else {
+                            Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
+                        }
                     } catch (e: Exception) {
                         Log.e("RoomActivity", "Failed to parse response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
@@ -220,6 +276,9 @@ class RoomActivity : AppCompatActivity() {
                             userRoomsList.append("Room: $code\n")
                         }
                         userRoomsTextView.text = userRoomsList.toString()
+
+                        // 사용자가 속한 방이 있는 경우 currentRoomCode 업데이트
+                        currentRoomCode = if (jsonArray.length() > 0) jsonArray.getJSONObject(0).getString("code") else null
                     } catch (e: Exception) {
                         Log.e("RoomActivity", "Failed to parse user rooms response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse user rooms response", Toast.LENGTH_SHORT).show()
@@ -228,5 +287,4 @@ class RoomActivity : AppCompatActivity() {
             }
         })
     }
-
 }

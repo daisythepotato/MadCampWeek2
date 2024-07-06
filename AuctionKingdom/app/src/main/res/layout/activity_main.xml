@@ -124,13 +124,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="#AA000000"
+        android:background="#FFFFFF"
         android:layout_alignParentBottom="true"
         android:gravity="center">
 
         <ImageView
             android:id="@+id/nav_shop"
-            android:layout_width="64dp"
+            android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_weight="1"
             android:src="@drawable/shop_icon"
@@ -138,7 +138,7 @@
 
         <ImageView
             android:id="@+id/nav_trophy"
-            android:layout_width="64dp"
+            android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_weight="1"
             android:src="@drawable/trophy_icon"
@@ -146,7 +146,7 @@
 
         <ImageView
             android:id="@+id/nav_swords"
-            android:layout_width="64dp"
+            android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_weight="1"
             android:src="@drawable/swords_icon"
@@ -154,7 +154,7 @@
 
         <ImageView
             android:id="@+id/nav_cards"
-            android:layout_width="64dp"
+            android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_weight="1"
             android:src="@drawable/cards_icon"
@@ -162,7 +162,7 @@
 
         <ImageView
             android:id="@+id/nav_info"
-            android:layout_width="64dp"
+            android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_weight="1"
             android:src="@drawable/info_icon"
