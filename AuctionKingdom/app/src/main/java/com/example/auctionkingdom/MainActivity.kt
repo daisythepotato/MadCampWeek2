@@ -1,6 +1,7 @@
 package com.example.auctionkingdom
 
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -14,12 +15,14 @@ class MainActivity : AppCompatActivity() {
         val nickname = intent.getStringExtra("nickname")
         val kingdomName = intent.getStringExtra("kingdomName")
 
-        val emailTextView: TextView = findViewById(R.id.text_email)
-        val nicknameTextView: TextView = findViewById(R.id.text_nickname)
-        val kingdomNameTextView: TextView = findViewById(R.id.text_kingdom_name)
+        val profileNameTextView: TextView = findViewById(R.id.profile_name)
+        val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
 
-        emailTextView.text = "Email: $email"
-        nicknameTextView.text = "Nickname: $nickname"
-        kingdomNameTextView.text = "Kingdom Name: $kingdomName"
+        profileNameTextView.text = nickname
+        kingdomNameTextView.text = kingdomName
+
+        // 프로필 사진 설정
+        val profileImageView: ImageView = findViewById(R.id.profile_image)
+        profileImageView.setImageResource(R.drawable.profile_placeholder) // 실제 이미지를 사용하려면 이 부분을 변경합니다.
     }
 }
