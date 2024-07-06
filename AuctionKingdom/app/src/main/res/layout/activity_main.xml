@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="#AA000000"
+        android:background="#FFFFFF"
         android:gravity="center_vertical">
 
         <TextView
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Score: 100/100"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textSize="18sp"
             android:layout_weight="1" />
 
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="999"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textSize="18sp" />
 
         <ImageView
