@@ -3,8 +3,6 @@ package com.example.auctionkingdom
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
 
         // 상태 바와 네비게이션 바를 투명하게 설정
@@ -40,16 +37,17 @@ class MainActivity : AppCompatActivity() {
         val profileNameTextView: TextView = findViewById(R.id.profile_name)
         val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
         val scoreTextView: TextView = findViewById(R.id.score_text)
+        val coinTextView: TextView = findViewById(R.id.coin_text)
 
         // 프로필 사진 설정
         val profileImageView: ImageView = findViewById(R.id.profile_image)
         profileImageView.setImageResource(R.drawable.profile_placeholder) // 실제 이미지를 사용하려면 이 부분을 변경합니다.
 
         // 사용자 데이터 불러오기
-        fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView)
+        fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView, coinTextView)
     }
 
-    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, scoreTextView: TextView) {
+    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, scoreTextView: TextView, coinTextView: TextView) {
         if (email == null) {
             return
         }
@@ -66,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                     profileNameTextView.text = "Failed to load data"
                     kingdomNameTextView.text = ""
                     scoreTextView.text = ""
+                    coinTextView.text = ""
                 }
             }
 
@@ -77,14 +76,17 @@ class MainActivity : AppCompatActivity() {
                         val nickname = jsonResponse.getString("nickname")
                         val kingdomName = jsonResponse.getString("kingdomName")
                         val score = jsonResponse.getInt("score")
+                        val coins = jsonResponse.getInt("coins")
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         scoreTextView.text = "Score: $score"
+                        coinTextView.text = coins.toString()
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
                         scoreTextView.text = ""
+                        coinTextView.text = ""
                     }
                 }
             }
