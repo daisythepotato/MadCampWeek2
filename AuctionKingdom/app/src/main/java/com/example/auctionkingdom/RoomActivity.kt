@@ -2,12 +2,13 @@ package com.example.auctionkingdom
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import io.socket.client.IO
+import io.socket.client.Socket
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONArray
@@ -19,14 +20,15 @@ class RoomActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var roomsTextView: TextView
     private lateinit var userRoomsTextView: TextView
-    private var email: String? = null // email 변수를 클래스 수준에서 선언
-    private var currentRoomCode: String? = null // 현재 사용자가 속한 방 코드를 추적하기 위한 변수
+    private var email: String? = null
+    private var currentRoomCode: String? = null
+    private lateinit var socket: Socket
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
 
-        email = intent.getStringExtra("email") // onCreate에서 email 초기화
+        email = intent.getStringExtra("email")
 
         val createRoomButton: Button = findViewById(R.id.create_room_button)
         val joinRoomButton: Button = findViewById(R.id.join_room_button)
@@ -69,34 +71,57 @@ class RoomActivity : AppCompatActivity() {
         if (email != null) {
             fetchUserRooms(email!!)
         }
+
+        // 소켓 설정 및 이벤트 처리
+        setupSocket()
     }
 
-    private fun createRoom(code: String, email: String) {
+    private fun setupSocket() {
+        socket = IO.socket("http://172.10.7.80:80")
+        socket.on(Socket.EVENT_CONNECT) {
+            // 연결 시 로그 메시지 출력
+        }
+        socket.on("roomListUpdated") {
+            fetchRooms()
+        }
+        socket.on("roomUpdated") { args ->
+            val data = args[0] as JSONObject
+            val roomCode = data.getString("code")
+            if (roomCode == currentRoomCode) {
+                // RoomDetailActivity에서 fetchRoomDetails 호출
+                val intent = Intent(this, RoomDetailActivity::class.java)
+                intent.putExtra("roomCode", roomCode)
+                startActivity(intent)
+            }
+        }
+        socket.connect()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        socket.disconnect()
+    }
+
+    private fun createRoom(code: String, player: String) {
         val json = JSONObject().apply {
             put("code", code)
-            put("player", email)
+            put("player", player)
         }
-
-        val requestBody = RequestBody.create("application/json".toMediaType(), json.toString())
 
         val request = Request.Builder()
             .url("http://172.10.7.80:80/api/createRoom")
-            .post(requestBody)
+            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
             .build()
-
-        Log.d("RoomActivity", "Sending request to create room: $json")
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Log.e("RoomActivity", "Failed to create room", e)
                     Toast.makeText(this@RoomActivity, "Failed to create room", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                Log.d("RoomActivity", "Response: $responseData")
                 runOnUiThread {
                     try {
                         val jsonResponse = JSONObject(responseData)
@@ -104,8 +129,8 @@ class RoomActivity : AppCompatActivity() {
                         if (success) {
                             val roomCode = jsonResponse.getString("roomCode")
                             Toast.makeText(this@RoomActivity, "Room created: $roomCode", Toast.LENGTH_SHORT).show()
-                            fetchRooms() // 방 목록 갱신
-                            fetchUserRooms(email) // 사용자가 속한 방 목록 갱신
+                            currentRoomCode = roomCode // 방 코드를 저장
+                            fetchUserRooms(email!!)
 
                             // RoomDetailActivity로 이동
                             val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
@@ -115,7 +140,6 @@ class RoomActivity : AppCompatActivity() {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
-                        Log.e("RoomActivity", "Failed to parse response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -123,10 +147,10 @@ class RoomActivity : AppCompatActivity() {
         })
     }
 
-    private fun joinRoom(code: String, email: String) {
+    private fun joinRoom(code: String, player: String) {
         val json = JSONObject().apply {
             put("code", code)
-            put("player", email)
+            put("player", player)
         }
 
         val request = Request.Builder()
@@ -134,42 +158,30 @@ class RoomActivity : AppCompatActivity() {
             .post(RequestBody.create("application/json".toMediaType(), json.toString()))
             .build()
 
-        Log.d("RoomActivity", "Sending request to join room: $json")
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Log.e("RoomActivity", "Failed to join room", e)
                     Toast.makeText(this@RoomActivity, "Failed to join room", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                Log.d("RoomActivity", "Response: $responseData")
                 runOnUiThread {
                     try {
                         val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         val gameState = jsonResponse.getString("gameState")
-                        if (success && gameState == "started") {
-                            Toast.makeText(this@RoomActivity, "Game started", Toast.LENGTH_SHORT).show()
-                            // 게임 화면으로 이동
-                            val intent = Intent(this@RoomActivity, GameActivity::class.java)
-                            startActivity(intent)
-                        } else if (success) {
-                            Toast.makeText(this@RoomActivity, "Waiting for another player", Toast.LENGTH_SHORT).show()
-                            // RoomDetailActivity로 이동
+                        if (success) {
+                            Toast.makeText(this@RoomActivity, "Joined room: $code", Toast.LENGTH_SHORT).show()
+                            currentRoomCode = code // 방 코드를 저장
                             val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
                             intent.putExtra("roomCode", code)
                             startActivity(intent)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
-                        currentRoomCode = code // 현재 사용자가 속한 방 코드 업데이트
-                        fetchUserRooms(email) // 사용자가 속한 방 목록 갱신
                     } catch (e: Exception) {
-                        Log.e("RoomActivity", "Failed to parse response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -188,32 +200,26 @@ class RoomActivity : AppCompatActivity() {
             .post(RequestBody.create("application/json".toMediaType(), json.toString()))
             .build()
 
-        Log.d("RoomActivity", "Sending request to leave room: $json")
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Log.e("RoomActivity", "Failed to leave room", e)
                     Toast.makeText(this@RoomActivity, "Failed to leave room", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseData = response.body?.string()
-                Log.d("RoomActivity", "Response: $responseData")
                 runOnUiThread {
                     try {
-                        val jsonResponse = JSONObject(responseData)
+                        val jsonResponse = JSONObject(response.body?.string())
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
-                            Toast.makeText(this@RoomActivity, "Left the room successfully", Toast.LENGTH_SHORT).show()
-                            currentRoomCode = null // 현재 사용자가 속한 방 코드 초기화
-                            fetchUserRooms(email) // 사용자가 속한 방 목록 갱신
+                            Toast.makeText(this@RoomActivity, "Left room successfully", Toast.LENGTH_SHORT).show()
+                            currentRoomCode = null
+                            fetchUserRooms(email)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
-                        Log.e("RoomActivity", "Failed to parse response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -230,14 +236,12 @@ class RoomActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Log.e("RoomActivity", "Failed to fetch rooms", e)
                     Toast.makeText(this@RoomActivity, "Failed to fetch rooms", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                Log.d("RoomActivity", "Response: $responseData")
                 runOnUiThread {
                     try {
                         val jsonArray = JSONArray(responseData)
@@ -250,7 +254,6 @@ class RoomActivity : AppCompatActivity() {
                         }
                         roomsTextView.text = roomsList.toString()
                     } catch (e: Exception) {
-                        Log.e("RoomActivity", "Failed to parse rooms response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse rooms response", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -267,14 +270,12 @@ class RoomActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Log.e("RoomActivity", "Failed to fetch user rooms", e)
                     Toast.makeText(this@RoomActivity, "Failed to fetch user rooms", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
-                Log.d("RoomActivity", "User rooms response: $responseData") // 디버깅 정보 추가
                 runOnUiThread {
                     try {
                         val jsonArray = JSONArray(responseData)
@@ -286,10 +287,8 @@ class RoomActivity : AppCompatActivity() {
                         }
                         userRoomsTextView.text = userRoomsList.toString()
 
-                        // 사용자가 속한 방이 있는 경우 currentRoomCode 업데이트
                         currentRoomCode = if (jsonArray.length() > 0) jsonArray.getJSONObject(0).getString("code") else null
                     } catch (e: Exception) {
-                        Log.e("RoomActivity", "Failed to parse user rooms response", e)
                         Toast.makeText(this@RoomActivity, "Failed to parse user rooms response", Toast.LENGTH_SHORT).show()
                     }
                 }

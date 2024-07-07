@@ -1,9 +1,7 @@
 package com.example.auctionkingdom
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         val swordsIcon: ImageView = findViewById(R.id.nav_swords)
         swordsIcon.setOnClickListener {
             val intent = Intent(this, RoomActivity::class.java)
+            intent.putExtra("email", email) // 이메일 전달
             startActivity(intent)
         }
     }
@@ -67,13 +66,14 @@ class MainActivity : AppCompatActivity() {
                         val kingdomName = jsonResponse.getString("kingdomName")
                         val score = jsonResponse.getInt("score")
                         val coins = jsonResponse.getInt("coins")
-                        val profileImageRes = jsonResponse.getInt("profileImage") // 추가된 부분
+                        // profileImage 필드를 사용하는 경우 추가 필요
+                        // val profileImageRes = jsonResponse.getInt("profileImage")
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         scoreTextView.text = "Score: $score"
                         coinTextView.text = coins.toString()
-                        profileImageView.setImageResource(profileImageRes) // 추가된 부분
+                        // profileImageView.setImageResource(profileImageRes) // 추가된 부분
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""

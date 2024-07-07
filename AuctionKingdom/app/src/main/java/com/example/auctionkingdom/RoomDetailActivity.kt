@@ -4,33 +4,45 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import io.socket.client.IO
+import io.socket.client.Socket
 import okhttp3.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
 class RoomDetailActivity : AppCompatActivity() {
 
-    private val client = OkHttpClient()
-    private lateinit var roomCodeTextView: TextView
-    private lateinit var playersTextView: TextView
+    private lateinit var socket: Socket
+    private lateinit var roomDetailTextView: TextView
+    private lateinit var roomCode: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room_detail)
 
-        roomCodeTextView = findViewById(R.id.room_code_text_view)
-        playersTextView = findViewById(R.id.players_text_view)
+        roomDetailTextView = findViewById(R.id.room_detail_text_view)
+        roomCode = intent.getStringExtra("roomCode")!!
 
-        val roomCode = intent.getStringExtra("roomCode")
-        roomCodeTextView.text = "Room Code: $roomCode"
+        fetchRoomDetails(roomCode)
 
-        // 방 상세 정보 가져오기
-        if (roomCode != null) {
-            fetchRoomDetails(roomCode)
-        } else {
-            Toast.makeText(this, "Room code not found", Toast.LENGTH_SHORT).show()
+        // 소켓 설정 및 이벤트 처리
+        setupSocket()
+    }
+
+    private fun setupSocket() {
+        socket = IO.socket("http://172.10.7.80:80")
+        socket.on(Socket.EVENT_CONNECT) {
+            socket.emit("joinRoom", roomCode)
         }
+        socket.on("roomUpdated") {
+            fetchRoomDetails(roomCode)
+        }
+        socket.connect()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        socket.disconnect()
     }
 
     private fun fetchRoomDetails(roomCode: String) {
@@ -39,7 +51,7 @@ class RoomDetailActivity : AppCompatActivity() {
             .get()
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
+        OkHttpClient().newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
                     Toast.makeText(this@RoomDetailActivity, "Failed to fetch room details", Toast.LENGTH_SHORT).show()
@@ -52,13 +64,11 @@ class RoomDetailActivity : AppCompatActivity() {
                     try {
                         val jsonResponse = JSONObject(responseData)
                         val players = jsonResponse.getJSONArray("players")
-                        val playersList = StringBuilder()
+                        val playerList = StringBuilder()
                         for (i in 0 until players.length()) {
-                            val player = players.getJSONObject(i)
-                            val nickname = player.getString("nickname")
-                            playersList.append("Player: $nickname\n")
+                            playerList.append(players.getString(i)).append("\n")
                         }
-                        playersTextView.text = playersList.toString()
+                        roomDetailTextView.text = playerList.toString()
                     } catch (e: Exception) {
                         Toast.makeText(this@RoomDetailActivity, "Failed to parse room details", Toast.LENGTH_SHORT).show()
                     }
