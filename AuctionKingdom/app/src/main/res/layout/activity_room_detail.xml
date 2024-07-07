@@ -5,16 +5,22 @@
     android:layout_height="match_parent"
     tools:context=".RoomDetailActivity">
 
-    <!-- Room Details TextView -->
     <TextView
         android:id="@+id/room_detail_text_view"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:text="Room Details"
+        android:layout_centerInParent="true"
         android:textSize="18sp"
-        android:textColor="@android:color/black"
-        tools:text="Room details will be displayed here." />
+        android:textColor="@android:color/black" />
 
-    <!-- Other UI components if needed -->
+    <Button
+        android:id="@+id/leave_room_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leave Room"
+        android:layout_below="@id/room_detail_text_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 
 </RelativeLayout>

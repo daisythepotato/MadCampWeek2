@@ -22,7 +22,7 @@ class RoomActivity : AppCompatActivity() {
     private lateinit var userRoomsTextView: TextView
     private var email: String? = null
     private var currentRoomCode: String? = null
-    private lateinit var socket: Socket
+    private lateinit var socket: Socket // 소켓 변수 추가
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +91,7 @@ class RoomActivity : AppCompatActivity() {
                 // RoomDetailActivity에서 fetchRoomDetails 호출
                 val intent = Intent(this, RoomDetailActivity::class.java)
                 intent.putExtra("roomCode", roomCode)
+                intent.putExtra("email", email) // 이메일 추가
                 startActivity(intent)
             }
         }
@@ -129,13 +130,7 @@ class RoomActivity : AppCompatActivity() {
                         if (success) {
                             val roomCode = jsonResponse.getString("roomCode")
                             Toast.makeText(this@RoomActivity, "Room created: $roomCode", Toast.LENGTH_SHORT).show()
-                            currentRoomCode = roomCode // 방 코드를 저장
                             fetchUserRooms(email!!)
-
-                            // RoomDetailActivity로 이동
-                            val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
-                            intent.putExtra("roomCode", roomCode)
-                            startActivity(intent)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
@@ -174,9 +169,9 @@ class RoomActivity : AppCompatActivity() {
                         val gameState = jsonResponse.getString("gameState")
                         if (success) {
                             Toast.makeText(this@RoomActivity, "Joined room: $code", Toast.LENGTH_SHORT).show()
-                            currentRoomCode = code // 방 코드를 저장
                             val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
                             intent.putExtra("roomCode", code)
+                            intent.putExtra("email", player) // 이메일 추가
                             startActivity(intent)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
