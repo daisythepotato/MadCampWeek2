@@ -66,14 +66,13 @@ class MainActivity : AppCompatActivity() {
                         val kingdomName = jsonResponse.getString("kingdomName")
                         val score = jsonResponse.getInt("score")
                         val coins = jsonResponse.getInt("coins")
-                        // profileImage 필드를 사용하는 경우 추가 필요
-                        // val profileImageRes = jsonResponse.getInt("profileImage")
+                        val profileImageRes = jsonResponse.getInt("profileImage")
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         scoreTextView.text = "Score: $score"
                         coinTextView.text = coins.toString()
-                        // profileImageView.setImageResource(profileImageRes) // 추가된 부분
+                        profileImageView.setImageResource(profileImageRes) // 추가된 부분
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
