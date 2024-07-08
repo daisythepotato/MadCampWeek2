@@ -19,6 +19,7 @@ class RoomDetailActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var roomDetailTextView: TextView
     private lateinit var leaveRoomButton: Button
+    private lateinit var toggleReadyButton: Button
     private lateinit var socket: Socket
     private var roomCode: String? = null
     private var email: String? = null
@@ -29,6 +30,7 @@ class RoomDetailActivity : AppCompatActivity() {
 
         roomDetailTextView = findViewById(R.id.room_detail_text_view)
         leaveRoomButton = findViewById(R.id.leave_room_button)
+        toggleReadyButton = findViewById(R.id.toggle_ready_button)
         roomCode = intent.getStringExtra("roomCode")
         email = intent.getStringExtra("email")
 
@@ -43,6 +45,14 @@ class RoomDetailActivity : AppCompatActivity() {
         leaveRoomButton.setOnClickListener {
             if (roomCode != null && email != null) {
                 leaveRoom(roomCode!!, email!!)
+            } else {
+                Toast.makeText(this, "Room code or email not found", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        toggleReadyButton.setOnClickListener {
+            if (roomCode != null && email != null) {
+                toggleReady(roomCode!!, email!!)
             } else {
                 Toast.makeText(this, "Room code or email not found", Toast.LENGTH_SHORT).show()
             }
@@ -93,7 +103,12 @@ class RoomDetailActivity : AppCompatActivity() {
                         val players = jsonResponse.getJSONArray("players")
                         val playerList = StringBuilder()
                         for (i in 0 until players.length()) {
-                            playerList.append(players.getString(i)).append("\n")
+                            val player = players.getJSONObject(i)
+                            val email = player.getString("email")
+                            val ready = player.getBoolean("ready")
+                            val isHost = if (i == 0) " (Host)" else ""
+                            val readyStatus = if (ready) "Ready" else "Unready"
+                            playerList.append("$email$isHost - $readyStatus\n")
                         }
                         roomDetailTextView.text = "Room Code: $code\nPlayers:\n$playerList"
                     } catch (e: Exception) {
@@ -133,6 +148,42 @@ class RoomDetailActivity : AppCompatActivity() {
                             val intent = Intent(this@RoomDetailActivity, RoomActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                             startActivity(intent)
+                        } else {
+                            Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this@RoomDetailActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun toggleReady(code: String, email: String) {
+        val json = JSONObject().apply {
+            put("code", code)
+            put("email", email)
+        }
+
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/toggleReady")
+            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@RoomDetailActivity, "Failed to toggle ready state", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    try {
+                        val jsonResponse = JSONObject(response.body?.string())
+                        val success = jsonResponse.getBoolean("success")
+                        if (success) {
+                            Toast.makeText(this@RoomDetailActivity, "Ready state toggled", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
