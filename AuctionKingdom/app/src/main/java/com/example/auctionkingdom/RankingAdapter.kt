@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-data class RankingItem(val profileImage: Int, val nickname: String, val kingdomName: String, val score: Int)
+data class RankingItem(val profileImage: String, val nickname: String, val kingdomName: String, val score: Int)
 
 class RankingAdapter(private val rankingData: List<RankingItem>) : RecyclerView.Adapter<RankingAdapter.RankingViewHolder>() {
 
@@ -19,8 +19,8 @@ class RankingAdapter(private val rankingData: List<RankingItem>) : RecyclerView.
     override fun onBindViewHolder(holder: RankingViewHolder, position: Int) {
         val item = rankingData[position]
 
-        // 프로필 이미지 로드 (숫자 값을 실제 리소스 ID로 변환)
-        val profileImageRes = item.profileImage
+        // 프로필 이미지 로드 (문자열 값을 실제 리소스 ID로 변환)
+        val profileImageRes = holder.itemView.context.resources.getIdentifier(item.profileImage, "drawable", holder.itemView.context.packageName)
         holder.profileImage.setImageResource(profileImageRes)
 
         holder.rankText.text = (position + 1).toString() // 순위 표시
@@ -40,8 +40,6 @@ class RankingAdapter(private val rankingData: List<RankingItem>) : RecyclerView.
     override fun getItemCount(): Int {
         return rankingData.size
     }
-
-
 
     class RankingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val rankText: TextView = view.findViewById(R.id.rank_text) // 순위 텍스트뷰

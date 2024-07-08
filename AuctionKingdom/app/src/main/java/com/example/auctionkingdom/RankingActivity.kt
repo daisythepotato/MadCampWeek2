@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.*
 import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 
 class RankingActivity : AppCompatActivity() {
@@ -72,7 +71,7 @@ class RankingActivity : AppCompatActivity() {
             val jsonArray = JSONArray(responseData)
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
-                val profileImage = jsonObject.getInt("profileImage") // 숫자로 저장된 이미지 ID
+                val profileImage = jsonObject.getString("profileImage") // 문자열로 저장된 이미지 이름
                 val nickname = jsonObject.getString("nickname")
                 val kingdomName = jsonObject.getString("kingdomName")
                 val score = jsonObject.getInt("score")
