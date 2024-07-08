@@ -20,6 +20,7 @@ class RoomDetailActivity : AppCompatActivity() {
     private lateinit var roomDetailTextView: TextView
     private lateinit var leaveRoomButton: Button
     private lateinit var toggleReadyButton: Button
+    private lateinit var matchButton: Button // Match 버튼 추가
     private lateinit var socket: Socket
     private var roomCode: String? = null
     private var email: String? = null
@@ -31,6 +32,8 @@ class RoomDetailActivity : AppCompatActivity() {
         roomDetailTextView = findViewById(R.id.room_detail_text_view)
         leaveRoomButton = findViewById(R.id.leave_room_button)
         toggleReadyButton = findViewById(R.id.toggle_ready_button)
+        matchButton = findViewById(R.id.match_button) // Match 버튼 초기화
+
         roomCode = intent.getStringExtra("roomCode")
         email = intent.getStringExtra("email")
 
@@ -58,6 +61,14 @@ class RoomDetailActivity : AppCompatActivity() {
             }
         }
 
+        matchButton.setOnClickListener {
+            if (roomCode != null && email != null) {
+                checkAndStartMatch(roomCode!!, email!!)
+            } else {
+                Toast.makeText(this, "Room code or email not found", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         // 소켓 설정 및 이벤트 처리
         setupSocket()
     }
@@ -66,12 +77,20 @@ class RoomDetailActivity : AppCompatActivity() {
         socket = IO.socket("http://172.10.7.80:80")
         socket.on(Socket.EVENT_CONNECT) {
             // 연결 시 로그 메시지 출력
+            socket.emit("joinRoom", roomCode)
         }
         socket.on("roomUpdated") { args ->
             val data = args[0] as JSONObject
             val updatedRoomCode = data.getString("code")
             if (updatedRoomCode == roomCode) {
                 fetchRoomDetails(updatedRoomCode)
+            }
+        }
+        socket.on("startMatch") { args ->
+            runOnUiThread {
+                Toast.makeText(this, "Match started", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, GameActivity::class.java)
+                startActivity(intent)
             }
         }
         socket.connect()
@@ -178,12 +197,52 @@ class RoomDetailActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
                 runOnUiThread {
                     try {
-                        val jsonResponse = JSONObject(response.body?.string())
+                        Log.d("RoomDetailActivity", "Response: $responseData") // 응답 로그 추가
+                        val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
                             Toast.makeText(this@RoomDetailActivity, "Ready state toggled", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this@RoomDetailActivity, "Failed to parse response", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun checkAndStartMatch(code: String, email: String) {
+        val json = JSONObject().apply {
+            put("code", code)
+            put("email", email)
+        }
+
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/checkAndStartMatch")
+            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@RoomDetailActivity, "Failed to start match", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
+                runOnUiThread {
+                    try {
+                        val jsonResponse = JSONObject(responseData)
+                        val success = jsonResponse.getBoolean("success")
+                        if (success) {
+                            // 모든 유저에게 GameActivity로 이동하는 신호를 보냄
+                            socket.emit("startMatch", code)
                         } else {
                             Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }

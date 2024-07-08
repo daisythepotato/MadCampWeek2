@@ -28,6 +28,7 @@
         <activity android:name=".RoomActivity"/>
         <activity android:name=".RoomDetailActivity"/>
         <activity android:name=".ProfileImageSelectionActivity"/>
+        <activity android:name=".GameActivity"/>
     </application>
 
 </manifest>
