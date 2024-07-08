@@ -22,12 +22,18 @@ class MainActivity : AppCompatActivity() {
         val email = intent.getStringExtra("email")
         val profileNameTextView: TextView = findViewById(R.id.profile_name)
         val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
-        val scoreTextView: TextView = findViewById(R.id.score_text)
         val coinTextView: TextView = findViewById(R.id.coin_text)
         val profileImageView: ImageView = findViewById(R.id.profile_image)
 
         // 사용자 데이터 불러오기
-        fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView, coinTextView, profileImageView)
+        fetchUserData(email, profileNameTextView, kingdomNameTextView, coinTextView, profileImageView)
+
+        // 프로필 이미지 클릭 이벤트
+        profileImageView.setOnClickListener {
+            val intent = Intent(this, ProfileDetailActivity::class.java)
+            intent.putExtra("email", email)
+            startActivity(intent)
+        }
 
         // 방 생성 및 입장 화면으로 이동
         val swordsIcon: ImageView = findViewById(R.id.nav_swords)
@@ -80,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, scoreTextView: TextView, coinTextView: TextView, profileImageView: ImageView) {
+    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, coinTextView: TextView, profileImageView: ImageView) {
         if (email == null) {
             return
         }
@@ -96,7 +102,6 @@ class MainActivity : AppCompatActivity() {
                     // 실패 시 처리
                     profileNameTextView.text = "Failed to load data"
                     kingdomNameTextView.text = ""
-                    scoreTextView.text = ""
                     coinTextView.text = ""
                 }
             }
@@ -108,19 +113,16 @@ class MainActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseData)
                         val nickname = jsonResponse.getString("nickname")
                         val kingdomName = jsonResponse.getString("kingdomName")
-                        val score = jsonResponse.getInt("score")
                         val coins = jsonResponse.getInt("coins")
                         val profileImageRes = jsonResponse.getInt("profileImage")
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
-                        scoreTextView.text = "Score: $score"
                         coinTextView.text = coins.toString()
                         profileImageView.setImageResource(profileImageRes)
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
-                        scoreTextView.text = ""
                         coinTextView.text = ""
                     }
                 }

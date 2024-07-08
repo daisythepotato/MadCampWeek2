@@ -34,7 +34,8 @@
         <activity android:name=".LibraryActivity"></activity>
         <activity android:name=".InfoActivity"></activity>
         <activity android:name=".RankingActivity"></activity>
-
+        <activity android:name=".ProfileDetailActivity"></activity>
+        <activity android:name=".EditProfileActivity"></activity>
     </application>
 
 </manifest>
