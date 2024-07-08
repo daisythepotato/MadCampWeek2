@@ -131,6 +131,11 @@ class RoomActivity : AppCompatActivity() {
                             val roomCode = jsonResponse.getString("roomCode")
                             Toast.makeText(this@RoomActivity, "Room created: $roomCode", Toast.LENGTH_SHORT).show()
                             fetchUserRooms(email!!)
+                            // 방 생성 후 RoomDetailActivity로 이동
+                            val intent = Intent(this@RoomActivity, RoomDetailActivity::class.java)
+                            intent.putExtra("roomCode", roomCode)
+                            intent.putExtra("email", player) // 이메일 추가
+                            startActivity(intent)
                         } else {
                             Toast.makeText(this@RoomActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
