@@ -1,57 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    tools:context=".RoomActivity">
 
-    <!-- 방 생성 -->
     <EditText
         android:id="@+id/create_room_code_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter room code to create" />
+        android:hint="Enter room code to create"
+        android:layout_margin="16dp" />
 
     <Button
         android:id="@+id/create_room_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Room" />
+        android:text="Create Room"
+        android:layout_below="@id/create_room_code_edit_text"
+        android:layout_margin="16dp" />
 
-    <!-- 방 참여 -->
     <EditText
         android:id="@+id/join_room_code_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter room code to join" />
+        android:hint="Enter room code to join"
+        android:layout_below="@id/create_room_button"
+        android:layout_margin="16dp" />
 
     <Button
         android:id="@+id/join_room_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Join Room" />
+        android:text="Join Room"
+        android:layout_below="@id/join_room_code_edit_text"
+        android:layout_margin="16dp" />
 
-    <!-- 방 나가기 -->
-    <Button
-        android:id="@+id/leave_room_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Leave Room" />
-
-    <!-- 방 목록 -->
     <TextView
         android:id="@+id/rooms_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Rooms" />
+        android:text="Available Rooms"
+        android:layout_below="@id/join_room_button"
+        android:layout_margin="16dp" />
 
-    <!-- 사용자가 속한 방 목록 -->
-    <TextView
-        android:id="@+id/user_rooms_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Your Rooms" />
-
-</LinearLayout>
+</RelativeLayout>
