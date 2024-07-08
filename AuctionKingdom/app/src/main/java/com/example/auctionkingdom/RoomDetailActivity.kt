@@ -108,9 +108,10 @@ class RoomDetailActivity : AppCompatActivity() {
 
             runOnUiThread {
                 Toast.makeText(this, "Match started", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, GameActivity::class.java)
-                intent.putExtra("player1Email", player1Email)
-                intent.putExtra("player2Email", player2Email)
+                val intent = Intent(this, GameActivity::class.java).apply {
+                    putExtra("player1Email", player1Email)
+                    putExtra("player2Email", player2Email)
+                }
                 startActivity(intent)
             }
         }
@@ -283,12 +284,14 @@ class RoomDetailActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
-                            // 모든 유저에게 GameActivity로 이동하는 신호를 보냄
                             val players = jsonResponse.getJSONArray("players")
                             if (players.length() == 2) {
                                 val email1 = players.getJSONObject(0).getString("email")
                                 val email2 = players.getJSONObject(1).getString("email")
-                                socket.emit("startMatch", code, email1, email2)
+                                socket.emit("startMatch", JSONObject().apply {
+                                    put("player1Email", email1)
+                                    put("player2Email", email2)
+                                })
                             } else {
                                 Toast.makeText(this@RoomDetailActivity, "Need 2 players to start the match", Toast.LENGTH_SHORT).show()
                             }
@@ -302,6 +305,8 @@ class RoomDetailActivity : AppCompatActivity() {
             }
         })
     }
+
+
 
     override fun onBackPressed() {
         if (roomCode != null && email != null) {
