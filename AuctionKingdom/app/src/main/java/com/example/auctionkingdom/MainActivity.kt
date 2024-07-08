@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         val coinTextView: TextView = findViewById(R.id.coin_text)
         val profileImageView: ImageView = findViewById(R.id.profile_image) // 추가된 부분
 
-        // 사용자 데이터 불러오기
+        // 사용자 데이터 불러오기 Hi
         fetchUserData(email, profileNameTextView, kingdomNameTextView, scoreTextView, coinTextView, profileImageView)
 
         // 방 생성 및 입장 화면으로 이동
