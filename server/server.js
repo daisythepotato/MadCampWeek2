@@ -41,7 +41,6 @@ const roomSchema = new mongoose.Schema({
 });
 
 const Room = mongoose.model("Room", roomSchema);
-
 // Express 애플리케이션 설정
 const app = express();
 const server = http.createServer(app);
@@ -167,14 +166,34 @@ app.get("/api/getUserRooms", async (req, res) => {
   }
 });
 
-// 방 세부 정보 가져오기 엔드포인트
 app.get("/api/getRoomDetails", async (req, res) => {
   const { code } = req.query;
 
   try {
     const room = await Room.findOne({ code });
     if (room) {
-      res.status(200).json(room);
+      const playersDetails = await Promise.all(
+        room.players.map(async (player) => {
+          const user = await User.findOne({ email: player.email });
+          if (user) {
+            return {
+              email: player.email,
+              nickname: user.nickname,
+              kingdomName: user.kingdomName,
+              profileImage: user.profileImage,
+              ready: player.ready,
+            };
+          }
+          return null; // Handle null case
+        })
+      );
+
+      res
+        .status(200)
+        .json({
+          code: room.code,
+          players: playersDetails.filter((p) => p !== null),
+        }); // Filter out null values
     } else {
       res.status(404).json({ message: "Room not found" });
     }
@@ -248,22 +267,18 @@ app.post("/api/checkAndStartMatch", async (req, res) => {
     const room = await Room.findOne({ code });
     if (room) {
       if (room.players[0].email !== email) {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message: "Only the host can start the match",
-          });
+        return res.status(403).json({
+          success: false,
+          message: "Only the host can start the match",
+        });
       }
 
       const allReady = room.players.every((player) => player.ready);
       if (!allReady) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "All players must be ready to start the match",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "All players must be ready to start the match",
+        });
       }
 
       // 모든 플레이어가 준비된 상태라면 게임을 시작하도록 소켓 이벤트 전송
@@ -434,6 +449,16 @@ app.get("/api/getUser", async (req, res) => {
   } catch (err) {
     console.error("Error fetching user:", err);
     res.status(500).send("Failed to fetch user");
+  }
+});
+
+// 랭킹 데이터를 가져오는 엔드포인트
+app.get("/api/ranking", async (req, res) => {
+  try {
+    const players = await User.find().sort({ score: -1 }); // 점수 기준 내림차순 정렬
+    res.json(players);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,10 +18,17 @@ import java.io.IOException
 class RoomDetailActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
-    private lateinit var roomDetailTextView: TextView
+    private lateinit var p1NameTextView: TextView
+    private lateinit var p1KingdomNameTextView: TextView
+    private lateinit var p1ReadyStatusTextView: TextView // 추가된 부분
+    private lateinit var p1ProfileImageView: ImageView
+    private lateinit var p2NameTextView: TextView
+    private lateinit var p2KingdomNameTextView: TextView
+    private lateinit var p2ReadyStatusTextView: TextView // 추가된 부분
+    private lateinit var p2ProfileImageView: ImageView
     private lateinit var leaveRoomButton: Button
     private lateinit var toggleReadyButton: Button
-    private lateinit var matchButton: Button // Match 버튼 추가
+    private lateinit var matchButton: Button
     private lateinit var socket: Socket
     private var roomCode: String? = null
     private var email: String? = null
@@ -29,15 +37,22 @@ class RoomDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room_detail)
 
-        roomDetailTextView = findViewById(R.id.room_detail_text_view)
+        p1NameTextView = findViewById(R.id.p1_name_text_view)
+        p1KingdomNameTextView = findViewById(R.id.p1_kingdom_name_text_view)
+        p1ReadyStatusTextView = findViewById(R.id.p1_ready_status_text_view) // 추가된 부분
+        p1ProfileImageView = findViewById(R.id.p1_profile_image_view)
+        p2NameTextView = findViewById(R.id.p2_name_text_view)
+        p2KingdomNameTextView = findViewById(R.id.p2_kingdom_name_text_view)
+        p2ReadyStatusTextView = findViewById(R.id.p2_ready_status_text_view) // 추가된 부분
+        p2ProfileImageView = findViewById(R.id.p2_profile_image_view)
         leaveRoomButton = findViewById(R.id.leave_room_button)
         toggleReadyButton = findViewById(R.id.toggle_ready_button)
-        matchButton = findViewById(R.id.match_button) // Match 버튼 초기화
+        matchButton = findViewById(R.id.match_button)
 
         roomCode = intent.getStringExtra("roomCode")
         email = intent.getStringExtra("email")
 
-        Log.d("RoomDetailActivity", "roomCode: $roomCode, email: $email") // 로그 추가
+        Log.d("RoomDetailActivity", "roomCode: $roomCode, email: $email")
 
         if (roomCode != null && email != null) {
             fetchRoomDetails(roomCode!!)
@@ -120,16 +135,34 @@ class RoomDetailActivity : AppCompatActivity() {
                     try {
                         val jsonResponse = JSONObject(responseData)
                         val players = jsonResponse.getJSONArray("players")
-                        val playerList = StringBuilder()
-                        for (i in 0 until players.length()) {
-                            val player = players.getJSONObject(i)
-                            val email = player.getString("email")
-                            val ready = player.getBoolean("ready")
-                            val isHost = if (i == 0) " (Host)" else ""
-                            val readyStatus = if (ready) "Ready" else "Unready"
-                            playerList.append("$email$isHost - $readyStatus\n")
+
+                        // 첫 번째 플레이어 정보
+                        if (players.length() > 0) {
+                            val player1 = players.getJSONObject(0)
+                            p1NameTextView.text = player1.getString("nickname")
+                            p1KingdomNameTextView.text = player1.getString("kingdomName")
+                            val readyStatus1 = if (player1.getBoolean("ready")) "Ready" else "Unready"
+                            p1ReadyStatusTextView.text = readyStatus1 // 추가된 부분
+                            val profileImageRes = player1.getInt("profileImage")
+                            p1ProfileImageView.setImageResource(profileImageRes)
                         }
-                        roomDetailTextView.text = "Room Code: $code\nPlayers:\n$playerList"
+
+                        // 두 번째 플레이어 정보
+                        if (players.length() > 1) {
+                            val player2 = players.getJSONObject(1)
+                            p2NameTextView.text = player2.getString("nickname")
+                            p2KingdomNameTextView.text = player2.getString("kingdomName")
+                            val readyStatus2 = if (player2.getBoolean("ready")) "Ready" else "Unready"
+                            p2ReadyStatusTextView.text = readyStatus2 // 추가된 부분
+                            val profileImageRes = player2.getInt("profileImage")
+                            p2ProfileImageView.setImageResource(profileImageRes)
+                        } else {
+                            // 두 번째 플레이어가 없을 때 처리
+                            p2NameTextView.text = "Waiting for Player 2"
+                            p2KingdomNameTextView.text = ""
+                            p2ReadyStatusTextView.text = "" // 추가된 부분
+                            p2ProfileImageView.setImageResource(R.drawable.default_image)
+                        }
                     } catch (e: Exception) {
                         Toast.makeText(this@RoomDetailActivity, "Failed to parse room details", Toast.LENGTH_SHORT).show()
                     }
