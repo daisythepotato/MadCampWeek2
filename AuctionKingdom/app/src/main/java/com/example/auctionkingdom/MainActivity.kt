@@ -114,12 +114,13 @@ class MainActivity : AppCompatActivity() {
                         val nickname = jsonResponse.getString("nickname")
                         val kingdomName = jsonResponse.getString("kingdomName")
                         val coins = jsonResponse.getInt("coins")
-                        val profileImageRes = jsonResponse.getInt("profileImage")
+                        val profileImageName = jsonResponse.getString("profileImage")
 
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         coinTextView.text = coins.toString()
-                        profileImageView.setImageResource(profileImageRes)
+                        val resId = resources.getIdentifier(profileImageName, "drawable", packageName)
+                        profileImageView.setImageResource(resId)
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""

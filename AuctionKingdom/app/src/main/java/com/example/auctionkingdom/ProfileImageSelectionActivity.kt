@@ -11,7 +11,6 @@ import androidx.viewpager2.widget.ViewPager2
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONObject
-import org.w3c.dom.Text
 import java.io.IOException
 
 class ProfileImageSelectionActivity : AppCompatActivity() {
@@ -23,10 +22,10 @@ class ProfileImageSelectionActivity : AppCompatActivity() {
     private lateinit var profileDescriptionText: TextView
 
     private val profileImages = listOf(
-        R.drawable.profile_image_1, // 실제 이미지 리소스 사용
-        R.drawable.profile_image_2,
-        R.drawable.profile_image_3,
-        R.drawable.profile_image_4
+        "profile_image_1", // 문자열로 리소스 이름 저장
+        "profile_image_2",
+        "profile_image_3",
+        "profile_image_4"
     )
 
     private val profileNames = listOf(
@@ -63,11 +62,9 @@ class ProfileImageSelectionActivity : AppCompatActivity() {
         profileAgeText = findViewById(R.id.profile_age)
         profileDescriptionText = findViewById(R.id.profile_description)
 
-
         val selectButton: Button = findViewById(R.id.select_button)
 
-
-        viewPager.adapter = ViewPagerAdapter(this, profileImages)
+        viewPager.adapter = ViewPagerAdapter(this, profileImages.map { resources.getIdentifier(it, "drawable", packageName) })
         profileNameText.text = profileNames[0]
         profileAgeText.text = profileAges[0]
         profileDescriptionText.text = profileDescriptions[0]
@@ -83,17 +80,17 @@ class ProfileImageSelectionActivity : AppCompatActivity() {
 
         selectButton.setOnClickListener {
             val selectedPosition = viewPager.currentItem
-            val selectedImageRes = profileImages[selectedPosition]
-            saveUserProfile(email ?: "", nickname ?: "", kingdomName ?: "", selectedImageRes)
+            val selectedImageName = profileImages[selectedPosition]
+            saveUserProfile(email ?: "", nickname ?: "", kingdomName ?: "", selectedImageName)
         }
     }
 
-    private fun saveUserProfile(email: String, nickname: String, kingdomName: String, profileImage: Int) {
+    private fun saveUserProfile(email: String, nickname: String, kingdomName: String, profileImageName: String) {
         val json = JSONObject().apply {
             put("email", email)
             put("nickname", nickname)
             put("kingdomName", kingdomName)
-            put("profileImage", profileImage)
+            put("profileImage", profileImageName)
         }
 
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json.toString())

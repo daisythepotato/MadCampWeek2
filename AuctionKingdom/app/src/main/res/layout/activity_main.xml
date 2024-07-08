@@ -70,9 +70,23 @@
                 android:src="@drawable/coin_icon"
                 android:contentDescription="Coin Icon" />
 
+<<<<<<< HEAD
             <TextView
                 android:id="@+id/coin_text"
                 android:layout_width="wrap_content"
+=======
+                <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/default_icon"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="Profile Image" />
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="160dp"
+>>>>>>> 4785ed299108d6f8b135667ecaf168e5b9f63073
                 android:layout_height="wrap_content"
                 android:text="999"
                 android:textColor="@android:color/black"

@@ -20,11 +20,11 @@ class RoomDetailActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var p1NameTextView: TextView
     private lateinit var p1KingdomNameTextView: TextView
-    private lateinit var p1ReadyStatusTextView: TextView // 추가된 부분
+    private lateinit var p1ReadyStatusTextView: TextView
     private lateinit var p1ProfileImageView: ImageView
     private lateinit var p2NameTextView: TextView
     private lateinit var p2KingdomNameTextView: TextView
-    private lateinit var p2ReadyStatusTextView: TextView // 추가된 부분
+    private lateinit var p2ReadyStatusTextView: TextView
     private lateinit var p2ProfileImageView: ImageView
     private lateinit var leaveRoomButton: Button
     private lateinit var toggleReadyButton: Button
@@ -39,11 +39,11 @@ class RoomDetailActivity : AppCompatActivity() {
 
         p1NameTextView = findViewById(R.id.p1_name_text_view)
         p1KingdomNameTextView = findViewById(R.id.p1_kingdom_name_text_view)
-        p1ReadyStatusTextView = findViewById(R.id.p1_ready_status_text_view) // 추가된 부분
+        p1ReadyStatusTextView = findViewById(R.id.p1_ready_status_text_view)
         p1ProfileImageView = findViewById(R.id.p1_profile_image_view)
         p2NameTextView = findViewById(R.id.p2_name_text_view)
         p2KingdomNameTextView = findViewById(R.id.p2_kingdom_name_text_view)
-        p2ReadyStatusTextView = findViewById(R.id.p2_ready_status_text_view) // 추가된 부분
+        p2ReadyStatusTextView = findViewById(R.id.p2_ready_status_text_view)
         p2ProfileImageView = findViewById(R.id.p2_profile_image_view)
         leaveRoomButton = findViewById(R.id.leave_room_button)
         toggleReadyButton = findViewById(R.id.toggle_ready_button)
@@ -102,14 +102,24 @@ class RoomDetailActivity : AppCompatActivity() {
             }
         }
         socket.on("startMatch") { args ->
+            val data = args[0] as JSONObject
+            val player1Email = data.getString("player1Email")
+            val player2Email = data.getString("player2Email")
+
             runOnUiThread {
                 Toast.makeText(this, "Match started", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, GameActivity::class.java)
+                val intent = Intent(this, GameActivity::class.java).apply {
+                    putExtra("player1Email", player1Email)
+                    putExtra("player2Email", player2Email)
+                }
                 startActivity(intent)
             }
         }
         socket.connect()
     }
+
+
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -142,8 +152,8 @@ class RoomDetailActivity : AppCompatActivity() {
                             p1NameTextView.text = player1.getString("nickname")
                             p1KingdomNameTextView.text = player1.getString("kingdomName")
                             val readyStatus1 = if (player1.getBoolean("ready")) "Ready" else "Unready"
-                            p1ReadyStatusTextView.text = readyStatus1 // 추가된 부분
-                            val profileImageRes = player1.getInt("profileImage")
+                            p1ReadyStatusTextView.text = readyStatus1
+                            val profileImageRes = resources.getIdentifier(player1.getString("profileImage"), "drawable", packageName)
                             p1ProfileImageView.setImageResource(profileImageRes)
                         }
 
@@ -153,14 +163,14 @@ class RoomDetailActivity : AppCompatActivity() {
                             p2NameTextView.text = player2.getString("nickname")
                             p2KingdomNameTextView.text = player2.getString("kingdomName")
                             val readyStatus2 = if (player2.getBoolean("ready")) "Ready" else "Unready"
-                            p2ReadyStatusTextView.text = readyStatus2 // 추가된 부분
-                            val profileImageRes = player2.getInt("profileImage")
+                            p2ReadyStatusTextView.text = readyStatus2
+                            val profileImageRes = resources.getIdentifier(player2.getString("profileImage"), "drawable", packageName)
                             p2ProfileImageView.setImageResource(profileImageRes)
                         } else {
                             // 두 번째 플레이어가 없을 때 처리
                             p2NameTextView.text = "Waiting for Player 2"
                             p2KingdomNameTextView.text = ""
-                            p2ReadyStatusTextView.text = "" // 추가된 부분
+                            p2ReadyStatusTextView.text = ""
                             p2ProfileImageView.setImageResource(R.drawable.default_image)
                         }
                     } catch (e: Exception) {
@@ -233,7 +243,7 @@ class RoomDetailActivity : AppCompatActivity() {
                 val responseData = response.body?.string()
                 runOnUiThread {
                     try {
-                        Log.d("RoomDetailActivity", "Response: $responseData") // 응답 로그 추가
+                        Log.d("RoomDetailActivity", "Response: $responseData")
                         val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
@@ -274,8 +284,17 @@ class RoomDetailActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
-                            // 모든 유저에게 GameActivity로 이동하는 신호를 보냄
-                            socket.emit("startMatch", code)
+                            val players = jsonResponse.getJSONArray("players")
+                            if (players.length() == 2) {
+                                val email1 = players.getJSONObject(0).getString("email")
+                                val email2 = players.getJSONObject(1).getString("email")
+                                socket.emit("startMatch", JSONObject().apply {
+                                    put("player1Email", email1)
+                                    put("player2Email", email2)
+                                })
+                            } else {
+                                Toast.makeText(this@RoomDetailActivity, "Need 2 players to start the match", Toast.LENGTH_SHORT).show()
+                            }
                         } else {
                             Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
@@ -286,6 +305,8 @@ class RoomDetailActivity : AppCompatActivity() {
             }
         })
     }
+
+
 
     override fun onBackPressed() {
         if (roomCode != null && email != null) {
