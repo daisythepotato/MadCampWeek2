@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".InfoActivity">
+
+    <!-- 상단 바 -->
+    <RelativeLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="#FFFFFF">
+
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="INFO"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <!-- 설명 텍스트 -->
+    <TextView
+        android:id="@+id/info_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_bar"
+        android:layout_margin="16dp"
+        android:text="아주 오래전 야옹 왕국에는 네 고양이 왕이 있었다.\n극심한 자원 경쟁과 자본주의로 인해 네 고양이 왕은 경매로 왕국을 세우고 세력을 유지하려고 하는데...\n왕국을 이루는 요소에 알맞은 금액을 투자하여 나라를 강대국으로 만드세요!"
+        android:textSize="16sp" />
+
+    <!-- 게임 화면 이미지 -->
+    <ImageView
+        android:id="@+id/game_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/info_text"
+        android:layout_margin="16dp"
+        android:src="@drawable/card_image_1"
+        android:scaleType="fitCenter"
+        android:contentDescription="게임 화면" />
+
+    <!-- 하단 설명 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/game_image"
+        android:layout_margin="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="설명"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</RelativeLayout>

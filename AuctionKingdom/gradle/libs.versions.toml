@@ -18,6 +18,9 @@ loggingInterceptor = "5.0.0-alpha.14"
 okhttp = "5.0.0-alpha.14"
 cardview = "1.0.0"
 socketIoClient = "2.1.0"
+kotlinGradlePlugin = "2.0.20-Beta1"
+gradle = "8.6.0-alpha08"
+glideVersion = "4.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,6 +40,9 @@ logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-intercep
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 socket-io-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketIoClient" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlinGradlePlugin" }
+gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "gradle" }
+github-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glideVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
