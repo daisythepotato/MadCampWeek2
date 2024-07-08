@@ -102,14 +102,23 @@ class RoomDetailActivity : AppCompatActivity() {
             }
         }
         socket.on("startMatch") { args ->
+            val data = args[0] as JSONObject
+            val player1Email = data.getString("player1Email")
+            val player2Email = data.getString("player2Email")
+
             runOnUiThread {
                 Toast.makeText(this, "Match started", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, GameActivity::class.java)
+                intent.putExtra("player1Email", player1Email)
+                intent.putExtra("player2Email", player2Email)
                 startActivity(intent)
             }
         }
         socket.connect()
     }
+
+
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -275,7 +284,14 @@ class RoomDetailActivity : AppCompatActivity() {
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
                             // 모든 유저에게 GameActivity로 이동하는 신호를 보냄
-                            socket.emit("startMatch", code)
+                            val players = jsonResponse.getJSONArray("players")
+                            if (players.length() == 2) {
+                                val email1 = players.getJSONObject(0).getString("email")
+                                val email2 = players.getJSONObject(1).getString("email")
+                                socket.emit("startMatch", code, email1, email2)
+                            } else {
+                                Toast.makeText(this@RoomDetailActivity, "Need 2 players to start the match", Toast.LENGTH_SHORT).show()
+                            }
                         } else {
                             Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }
