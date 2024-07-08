@@ -1,22 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    tools:context=".GameActivity">
 
-    <!-- 게임 상태를 표시할 텍스트뷰 -->
     <TextView
-        android:id="@+id/game_state_text_view"
+        android:id="@+id/round_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Game Started"
-        android:textSize="24sp" />
+        android:text="Round 1"
+        android:textSize="24sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 
-    <!-- 플레이어 이동 버튼 -->
-    <Button
-        android:id="@+id/player_move_button"
+    <ImageView
+        android:id="@+id/card_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Move" />
-</LinearLayout>
+        android:src="@drawable/profile_image_1"
+        android:layout_below="@id/round_text_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/card_power_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Card Power: 100"
+        android:textSize="18sp"
+        android:layout_below="@id/card_image_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/bid_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your bid"
+        android:inputType="number"
+        android:layout_below="@id/card_power_text_view"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <Button
+        android:id="@+id/submit_bid_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit Bid"
+        android:layout_below="@id/bid_edit_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/players_status_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Player 1: 10000 gold\nPlayer 2: 10000 gold"
+        android:layout_below="@id/submit_bid_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
+
+</RelativeLayout>

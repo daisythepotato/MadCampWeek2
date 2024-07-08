@@ -1,12 +1,14 @@
 package com.example.auctionkingdom
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.View
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import io.socket.client.IO
+import io.socket.client.Socket
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONObject
@@ -15,124 +17,97 @@ import java.io.IOException
 class GameActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
-    private lateinit var gameStateTextView: TextView
-    private val handler = Handler(Looper.getMainLooper())
-    private lateinit var roomCode: String
+    private lateinit var roundTextView: TextView
+    private lateinit var cardImageView: ImageView
+    private lateinit var cardPowerTextView: TextView
+    private lateinit var bidEditText: EditText
+    private lateinit var submitBidButton: Button
+    private lateinit var playersStatusTextView: TextView
+    private lateinit var socket: Socket
+    private var roomCode: String? = null
+    private var email: String? = null
+    private var roundNumber = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        gameStateTextView = findViewById(R.id.game_state_text_view)
-        roomCode = intent.getStringExtra("roomCode") ?: return
+        roundTextView = findViewById(R.id.round_text_view)
+        cardImageView = findViewById(R.id.card_image_view)
+        cardPowerTextView = findViewById(R.id.card_power_text_view)
+        bidEditText = findViewById(R.id.bid_edit_text)
+        submitBidButton = findViewById(R.id.submit_bid_button)
+        playersStatusTextView = findViewById(R.id.players_status_text_view)
+        roomCode = intent.getStringExtra("roomCode")
+        email = intent.getStringExtra("email")
 
-        val playerMoveButton: Button = findViewById(R.id.player_move_button)
-        playerMoveButton.setOnClickListener {
-            // 플레이어의 이동 이벤트 처리
-            updateGameState("Player moved")
+        submitBidButton.setOnClickListener {
+            val bid = bidEditText.text.toString().toIntOrNull()
+            if (bid != null && bid > 0) {
+                submitBid(bid)
+            } else {
+                Toast.makeText(this, "Please enter a valid bid", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        startGameStateSync()
+        // 소켓 설정 및 이벤트 처리
+        setupSocket()
     }
 
-    private fun startGameStateSync() {
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                fetchGameState()
-                handler.postDelayed(this, 3000) // 3초마다 상태를 동기화
-            }
-        }, 3000)
+    private fun setupSocket() {
+        socket = IO.socket("http://172.10.7.80:80")
+        socket.on(Socket.EVENT_CONNECT) {
+            socket.emit("joinRoom", roomCode)
+        }
+        socket.on("roundUpdate") { args ->
+            val data = args[0] as JSONObject
+            updateRound(data)
+        }
+        socket.connect()
     }
 
-    private fun fetchGameState() {
-        val request = Request.Builder()
-            .url("http://172.10.7.80:80/api/getGameState?code=$roomCode")
-            .get()
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    gameStateTextView.text = "Failed to load game state"
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseData = response.body?.string()
-                runOnUiThread {
-                    try {
-                        val jsonResponse = JSONObject(responseData)
-                        val gameState = jsonResponse.getString("gameState")
-                        gameStateTextView.text = gameState
-                    } catch (e: Exception) {
-                        gameStateTextView.text = "Failed to parse game state"
-                    }
-                }
-            }
-        })
-    }
-
-    private fun updateGameState(newGameState: String) {
+    private fun submitBid(bid: Int) {
         val json = JSONObject().apply {
-            put("code", roomCode)
-            put("gameState", newGameState)
+            put("roomCode", roomCode)
+            put("email", email)
+            put("bid", bid)
         }
 
         val request = Request.Builder()
-            .url("http://172.10.7.80:80/api/updateGameState")
+            .url("http://172.10.7.80:80/api/submitBid")
             .post(RequestBody.create("application/json".toMediaType(), json.toString()))
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    gameStateTextView.text = "Failed to update game state"
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                fetchGameState() // 게임 상태를 다시 불러옵니다.
-            }
-        })
-    }
-
-    private fun checkGameEnd() {
-        // 게임이 끝나는 조건을 확인하는 로직을 여기에 추가
-
-        // 예를 들어, 특정 조건이 만족되면 게임이 끝났다고 가정
-        val gameEnded = true
-
-        if (gameEnded) {
-            val result = "player1_win" // 실제 결과를 여기에 넣습니다.
-            saveGameResult(result)
-        }
-    }
-
-    private fun saveGameResult(result: String) {
-        val json = JSONObject().apply {
-            put("code", roomCode)
-            put("result", result)
-        }
-
-        val request = Request.Builder()
-            .url("http://172.10.7.80:80/api/saveGameResult")
-            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    gameStateTextView.text = "Failed to save game result"
+                    Toast.makeText(this@GameActivity, "Failed to submit bid", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
-                    gameStateTextView.text = "Game result saved"
-                    // 게임이 끝난 후의 처리를 여기에 추가
+                    Toast.makeText(this@GameActivity, "Bid submitted", Toast.LENGTH_SHORT).show()
                 }
             }
         })
     }
 
+    private fun updateRound(data: JSONObject) {
+        val newRoundNumber = data.getInt("roundNumber")
+        val cardPower = data.getInt("cardPower")
+        val player1Gold = data.getInt("player1Gold")
+        val player2Gold = data.getInt("player2Gold")
+
+        runOnUiThread {
+            roundTextView.text = "Round $newRoundNumber"
+            cardPowerTextView.text = "Card Power: $cardPower"
+            playersStatusTextView.text = "Player 1: $player1Gold gold\nPlayer 2: $player2Gold gold"
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        socket.disconnect()
+    }
 }
