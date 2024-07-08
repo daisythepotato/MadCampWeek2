@@ -3,32 +3,26 @@ package com.example.auctionkingdom
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.view.animation.AnimationUtils
+import android.os.Looper
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 
 class SplashActivity : AppCompatActivity() {
 
-    private lateinit var logoImage: ImageView
-    private lateinit var stampImage: ImageView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        logoImage = findViewById(R.id.logo_image)
-        stampImage = findViewById(R.id.stamp_image)
+        val stampImageView: ImageView = findViewById(R.id.stamp_image)
 
-        Handler().postDelayed({
-            stampImage.visibility = ImageView.VISIBLE
-            val stampAnimation = AnimationUtils.loadAnimation(this, R.anim.stamp_animation)
-            stampImage.startAnimation(stampAnimation)
+        Handler(Looper.getMainLooper()).postDelayed({
+            stampImageView.visibility = ImageView.VISIBLE
 
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
                 finish()
             }, 1000)
-        }, 2000)
+        }, 1000)
     }
 }
