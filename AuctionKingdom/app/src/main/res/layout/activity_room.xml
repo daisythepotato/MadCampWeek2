@@ -5,36 +5,21 @@
     android:layout_height="match_parent"
     tools:context=".RoomActivity">
 
-    <EditText
-        android:id="@+id/create_room_code_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter room code to create"
-        android:layout_margin="16dp" />
-
     <Button
         android:id="@+id/create_room_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Create Room"
-        android:layout_below="@id/create_room_code_edit_text"
-        android:layout_margin="16dp" />
-
-    <EditText
-        android:id="@+id/join_room_code_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter room code to join"
-        android:layout_below="@id/create_room_button"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"
+        android:layout_centerInParent="true"/>
 
     <Button
         android:id="@+id/join_room_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Join Room"
-        android:layout_below="@id/join_room_code_edit_text"
-        android:layout_margin="16dp" />
+        android:layout_below="@id/create_room_button"
+        android:layout_margin="16dp"/>
 
     <TextView
         android:id="@+id/rooms_text_view"
@@ -42,6 +27,5 @@
         android:layout_height="wrap_content"
         android:text="Available Rooms"
         android:layout_below="@id/join_room_button"
-        android:layout_margin="16dp" />
-
+        android:layout_margin="16dp"/>
 </RelativeLayout>

@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -31,25 +32,25 @@ class RoomActivity : AppCompatActivity() {
 
         val createRoomButton: Button = findViewById(R.id.create_room_button)
         val joinRoomButton: Button = findViewById(R.id.join_room_button)
-        val createRoomCodeEditText: EditText = findViewById(R.id.create_room_code_edit_text)
-        val joinRoomCodeEditText: EditText = findViewById(R.id.join_room_code_edit_text)
         roomsTextView = findViewById(R.id.rooms_text_view)
 
         createRoomButton.setOnClickListener {
-            val roomCode = createRoomCodeEditText.text.toString()
-            if (email != null) {
-                createRoom(roomCode, email!!)
-            } else {
-                Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show()
+            showRoomCodeDialog("Create Room") { roomCode ->
+                if (email != null) {
+                    createRoom(roomCode, email!!)
+                } else {
+                    Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
         joinRoomButton.setOnClickListener {
-            val roomCode = joinRoomCodeEditText.text.toString()
-            if (email != null) {
-                joinRoom(roomCode, email!!)
-            } else {
-                Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show()
+            showRoomCodeDialog("Join Room") { roomCode ->
+                if (email != null) {
+                    joinRoom(roomCode, email!!)
+                } else {
+                    Toast.makeText(this, "Email not found", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -58,6 +59,25 @@ class RoomActivity : AppCompatActivity() {
 
         // 소켓 설정 및 이벤트 처리
         setupSocket()
+    }
+
+    private fun showRoomCodeDialog(title: String, callback: (String) -> Unit) {
+        val dialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_room_code, null)
+        dialogBuilder.setView(dialogView)
+
+        val roomCodeEditText: EditText = dialogView.findViewById(R.id.dialog_room_code_edit_text)
+        dialogBuilder.setTitle(title)
+        dialogBuilder.setPositiveButton("OK") { _, _ ->
+            val roomCode = roomCodeEditText.text.toString()
+            callback(roomCode)
+        }
+        dialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
     }
 
     private fun setupSocket() {
