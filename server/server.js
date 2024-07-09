@@ -77,6 +77,11 @@ io.on("connection", (socket) => {
     socket.join(roomCode);
   });
 
+  socket.on("leaveRoom", (roomCode) => {
+    socket.leave(roomCode);
+    console.log(`User left room: ${roomCode}`);
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
@@ -202,7 +207,6 @@ app.post("/api/placeBet", async (req, res) => {
         currentCard: newCard,
         currentRound: game.currentRound,
       });
-
       res.status(200).json({ success: true });
     } else {
       await game.save();
@@ -213,26 +217,6 @@ app.post("/api/placeBet", async (req, res) => {
   } catch (err) {
     console.error("Error placing bet:", err);
     res.status(500).send("Failed to place bet");
-  }
-});
-
-app.post("/api/updateGame", async (req, res) => {
-  const { gameId, gameState } = req.body;
-
-  try {
-    const game = await Game.findById(gameId);
-    if (game) {
-      game.gameState = gameState;
-      await game.save();
-      io.to(game.player1Email).emit("gameUpdated", game);
-      io.to(game.player2Email).emit("gameUpdated", game);
-      res.status(200).json({ success: true });
-    } else {
-      res.status(404).json({ success: false, message: "Game not found" });
-    }
-  } catch (err) {
-    console.error("Error updating game:", err);
-    res.status(500).send("Failed to update game");
   }
 });
 
@@ -444,7 +428,7 @@ app.post("/api/checkAndStartMatch", async (req, res) => {
 
       await Room.deleteOne({ code });
 
-      res.status(200).json({ success: true });
+      res.status(200).json({ success: true, player1Email, player2Email });
     } else {
       res.status(404).json({ success: false, message: "Room not found" });
     }

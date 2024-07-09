@@ -105,20 +105,29 @@ class RoomDetailActivity : AppCompatActivity() {
             val data = args[0] as JSONObject
             val player1Email = data.getString("player1Email")
             val player2Email = data.getString("player2Email")
-
             runOnUiThread {
                 Toast.makeText(this, "Match started", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, GameActivity::class.java)
-                intent.putExtra("player1Email", player1Email)
-                intent.putExtra("player2Email", player2Email)
-                intent.putExtra("currentEmail", email)
-                startActivity(intent)
+                startGameActivity(player1Email, player2Email, email!!)
             }
         }
         socket.connect()
     }
 
+    private fun leaveRoomSocket(roomCode: String) {
+        socket.emit("leaveRoom", roomCode)
+    }
 
+    private fun startGameActivity(player1Email: String, player2Email: String, currentEmail: String) {
+        leaveRoomSocket(roomCode!!) // Ensure the user leaves the Room socket
+
+        val intent = Intent(this, GameActivity::class.java).apply {
+            putExtra("player1Email", player1Email)
+            putExtra("player2Email", player2Email)
+            putExtra("currentEmail", currentEmail)
+        }
+        startActivity(intent)
+        finish()
+    }
 
 
     override fun onDestroy() {
@@ -284,15 +293,12 @@ class RoomDetailActivity : AppCompatActivity() {
                         val jsonResponse = JSONObject(responseData)
                         val success = jsonResponse.getBoolean("success")
                         if (success) {
-                            // 모든 유저에게 GameActivity로 이동하는 신호를 보냄
-                            val players = jsonResponse.getJSONArray("players")
-                            if (players.length() == 2) {
-                                val email1 = players.getJSONObject(0).getString("email")
-                                val email2 = players.getJSONObject(1).getString("email")
-                                socket.emit("startMatch", code, email1, email2)
-                            } else {
-                                Toast.makeText(this@RoomDetailActivity, "Need 2 players to start the match", Toast.LENGTH_SHORT).show()
-                            }
+                            // Extract player emails from the response
+                            val player1Email = jsonResponse.getString("player1Email")
+                            val player2Email = jsonResponse.getString("player2Email")
+
+                            // Start GameActivity with player emails
+                            startGameActivity(player1Email, player2Email, email!!)
                         } else {
                             Toast.makeText(this@RoomDetailActivity, jsonResponse.getString("message"), Toast.LENGTH_SHORT).show()
                         }

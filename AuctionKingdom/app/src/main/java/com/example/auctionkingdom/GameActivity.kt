@@ -3,6 +3,7 @@ package com.example.auctionkingdom
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -29,8 +30,6 @@ class GameActivity : AppCompatActivity() {
     private lateinit var betAmountEditText: EditText
     private lateinit var placeBetButton: Button
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -47,6 +46,9 @@ class GameActivity : AppCompatActivity() {
         gameStatusTextView.text = "Player 1: $player1Email\nPlayer 2: $player2Email"
 
         setupSocket()
+
+        socket.emit("joinRoom", "$player1Email-$player2Email")
+
 
         // 게임 시작
         if (player1Email != null && player2Email != null) {
@@ -102,25 +104,30 @@ class GameActivity : AppCompatActivity() {
         })
     }
 
-
     private fun setupSocket() {
         socket = IO.socket("http://172.10.7.80:80")
         socket.on(Socket.EVENT_CONNECT) {
-            // 연결 시 로그 메시지 출력
+            Log.d("GameActivity", "Socket connected")
         }
         socket.on("roundResult") { args ->
+            Log.d("GameActivity", "roundResult event received")
             runOnUiThread {
                 val data = args[0] as JSONObject
-                val player1 = data.getJSONObject("player1")
-                val player2 = data.getJSONObject("player2")
-                val currentCard = data.getString("currentCard")
+                Log.d("GameActivity", "Data received: $data")
+                val player1Gold = data.getInt("player1Gold")
+                val player2Gold = data.getInt("player2Gold")
+                val player1Power = data.getInt("player1Power")
+                val player2Power = data.getInt("player2Power")
+                val currentCardName = data.getString("currentCardName")
+                val currentCardImage = data.getString("currentCardImage")
                 val currentCardPower = data.getInt("currentCardPower")
                 val currentRound = data.getInt("currentRound")
 
-                gameStatusTextView.text = "Card: $currentCard\nPower: $currentCardPower\nRound: $currentRound"
+                gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
 
-                val resourceId = resources.getIdentifier(currentCard, "drawable", packageName)
+                val resourceId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
                 cardImageView.setImageResource(resourceId)
+                Log.d("GameActivity", "UI updated")
             }
         }
         socket.connect()
@@ -150,7 +157,6 @@ class GameActivity : AppCompatActivity() {
             }
         })
     }
-
 
     private fun fetchGameStatus(player1: String, player2: String) {
         val request = Request.Builder()
@@ -200,34 +206,21 @@ class GameActivity : AppCompatActivity() {
         })
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         socket.disconnect()
     }
 
     override fun onBackPressed() {
-        showExitConfirmationDialog()
-    }
-
-    private fun showExitConfirmationDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("게임에서 나가겠습니까?")
-            .setPositiveButton("네") { dialog, id ->
-                leaveGame()
+        AlertDialog.Builder(this)
+            .setMessage("Do you really want to exit the game?")
+            .setPositiveButton("Yes") { _, _ ->
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                startActivity(intent)
+                finish()
             }
-            .setNegativeButton("아니오") { dialog, id ->
-                dialog.dismiss()
-            }
-        val alert = builder.create()
-        alert.show()
-    }
-
-    private fun leaveGame() {
-        // 게임 나가기 로직 추가 (필요한 경우)
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        startActivity(intent)
-        finish()
+            .setNegativeButton("No", null)
+            .show()
     }
 }
