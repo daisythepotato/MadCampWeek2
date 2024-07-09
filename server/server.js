@@ -53,10 +53,18 @@ app.use(cors());
 io.on("connection", (socket) => {
   console.log("A user connected");
 
+  socket.on("joinRoom", (roomCode) => {
+    socket.join(roomCode);
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
 });
+
+//게임 관련 엔드포인트
+
+// 방이랑 유저 관련 엔드포인트들 (건드리지 마시오)
 
 // 방 생성 엔드포인트
 app.post("/api/createRoom", async (req, res) => {
@@ -236,19 +244,6 @@ app.post("/api/checkAndStartMatch", async (req, res) => {
     console.error("Error starting match:", err);
     res.status(500).send("Failed to start match");
   }
-});
-
-// 소켓 설정
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  socket.on("joinRoom", (roomCode) => {
-    socket.join(roomCode);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
 });
 
 // 준비 상태 토글 엔드포인트
