@@ -1,7 +1,11 @@
 package com.example.auctionkingdom
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -12,32 +16,23 @@ import java.io.IOException
 
 class GameActivity : AppCompatActivity() {
 
-    private lateinit var player1TextView: TextView
-    private lateinit var player2TextView: TextView
     private lateinit var gameStatusTextView: TextView
     private lateinit var socket: Socket
+    private var player1Email: String? = null
+    private var player2Email: String? = null
     private val client = OkHttpClient()
-    private var gameId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        player1TextView = findViewById(R.id.player1_text_view)
-        player2TextView = findViewById(R.id.player2_text_view)
         gameStatusTextView = findViewById(R.id.game_status_text_view)
 
-        val player1Email = intent.getStringExtra("player1Email")
-        val player2Email = intent.getStringExtra("player2Email")
+        player1Email = intent.getStringExtra("player1Email")
+        player2Email = intent.getStringExtra("player2Email")
 
-        player1TextView.text = player1Email
-        player2TextView.text = player2Email
+        gameStatusTextView.text = "Player 1: $player1Email\nPlayer 2: $player2Email"
 
-        if (player1Email != null && player2Email != null) {
-            createGame(player1Email, player2Email)
-        }
-
-        // 소켓 설정 및 이벤트 처리
         setupSocket()
     }
 
@@ -45,12 +40,7 @@ class GameActivity : AppCompatActivity() {
         socket = IO.socket("http://172.10.7.80:80")
         socket.on(Socket.EVENT_CONNECT) {
             // 연결 시 로그 메시지 출력
-        }
-        socket.on("gameUpdated") { args ->
-            val data = args[0] as JSONObject
-            runOnUiThread {
-                updateGameState(data)
-            }
+            socket.emit("joinGame", player1Email, player2Email)
         }
         socket.connect()
     }
@@ -60,46 +50,28 @@ class GameActivity : AppCompatActivity() {
         socket.disconnect()
     }
 
-    private fun createGame(player1Email: String, player2Email: String) {
-        val json = JSONObject().apply {
-            put("player1Email", player1Email)
-            put("player2Email", player2Email)
-        }
-
-        val request = Request.Builder()
-            .url("http://172.10.7.80:80/api/createGame")
-            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    // 실패 시 처리
-                    gameStatusTextView.text = "Failed to create game: ${e.message}"
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val responseData = response.body?.string()
-                runOnUiThread {
-                    try {
-                        val jsonResponse = JSONObject(responseData)
-                        val success = jsonResponse.getBoolean("success")
-                        if (success) {
-                            gameId = jsonResponse.getString("gameId")
-                            gameStatusTextView.text = "Game created successfully"
-                        } else {
-                            gameStatusTextView.text = "Failed to create game: ${jsonResponse.getString("message")}"
-                        }
-                    } catch (e: Exception) {
-                        gameStatusTextView.text = "Failed to parse response: ${e.message}"
-                    }
-                }
-            }
-        })
+    override fun onBackPressed() {
+        showExitConfirmationDialog()
     }
 
-    private fun updateGameState(data: JSONObject) {
-        // 여기에 게임 상태 업데이트 로직을 추가합니다.
+    private fun showExitConfirmationDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("게임에서 나가겠습니까?")
+            .setPositiveButton("네") { dialog, id ->
+                leaveGame()
+            }
+            .setNegativeButton("아니오") { dialog, id ->
+                dialog.dismiss()
+            }
+        val alert = builder.create()
+        alert.show()
+    }
+
+    private fun leaveGame() {
+        // 게임 나가기 로직 추가 (필요한 경우)
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
     }
 }
