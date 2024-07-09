@@ -55,16 +55,15 @@ class GameActivity : AppCompatActivity() {
 
         placeBetButton.setOnClickListener {
             val betAmount = betAmountEditText.text.toString().toIntOrNull()
-            if (betAmount != null && player1Email != null && player2Email != null) {
-                placeBet(player1Email!!, player2Email!!, betAmount)
+            if (betAmount != null && currentEmail != null) {
+                placeBet(player1Email!!, player2Email!!, currentEmail!!, betAmount)
             } else {
                 Toast.makeText(this, "Invalid bet amount", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun placeBet(player1: String, player2: String, betAmount: Int) {
-        val playerEmail = if (player1 == currentEmail) player1 else player2
+    private fun placeBet(player1: String, player2: String, playerEmail: String, betAmount: Int) {
         val json = JSONObject().apply {
             put("player1", player1)
             put("player2", player2)
@@ -103,14 +102,30 @@ class GameActivity : AppCompatActivity() {
         })
     }
 
+
     private fun setupSocket() {
         socket = IO.socket("http://172.10.7.80:80")
         socket.on(Socket.EVENT_CONNECT) {
             // 연결 시 로그 메시지 출력
-            socket.emit("joinGame", player1Email, player2Email)
+        }
+        socket.on("roundResult") { args ->
+            runOnUiThread {
+                val data = args[0] as JSONObject
+                val player1 = data.getJSONObject("player1")
+                val player2 = data.getJSONObject("player2")
+                val currentCard = data.getString("currentCard")
+                val currentCardPower = data.getInt("currentCardPower")
+                val currentRound = data.getInt("currentRound")
+
+                gameStatusTextView.text = "Card: $currentCard\nPower: $currentCardPower\nRound: $currentRound"
+
+                val resourceId = resources.getIdentifier(currentCard, "drawable", packageName)
+                cardImageView.setImageResource(resourceId)
+            }
         }
         socket.connect()
     }
+
 
     private fun startGame(player1: String, player2: String) {
         val json = JSONObject().apply {
