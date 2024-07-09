@@ -306,6 +306,8 @@ app.post("/api/checkAndStartMatch", async (req, res) => {
 
       io.to(code).emit("startMatch", { player1Email, player2Email });
 
+      await Room.deleteOne({ code });
+
       res.status(200).json({ success: true });
     } else {
       res.status(404).json({ success: false, message: "Room not found" });
