@@ -30,5 +30,13 @@
         android:layout_marginBottom="16dp" />
 
     <!-- 추가적인 게임 UI 요소들을 여기에 추가할 수 있습니다 -->
+    <ImageView
+        android:id="@+id/card_image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/default_card_image" />
+
+
 
 </LinearLayout>
