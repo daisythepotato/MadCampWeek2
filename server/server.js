@@ -44,10 +44,19 @@ const Room = mongoose.model("Room", roomSchema);
 
 // 게임 스키마 및 모델 설정
 const gameSchema = new mongoose.Schema({
-  player1Email: String,
-  player2Email: String,
-  gameState: Object,
-  createdAt: { type: Date, default: Date.now },
+  player1: String,
+  player2: String,
+  rounds: Number,
+  currentRound: Number,
+  player1Gold: Number,
+  player2Gold: Number,
+  player1Power: Number,
+  player2Power: Number,
+  currentCardPower: Number,
+  currentCardName: String,
+  currentCardImage: String,
+  player1Bet: { type: Number, default: null }, // 추가된 필드
+  player2Bet: { type: Number, default: null }, // 추가된 필드
 });
 
 const Game = mongoose.model("Game", gameSchema);
@@ -68,71 +77,182 @@ io.on("connection", (socket) => {
     socket.join(roomCode);
   });
 
+  socket.on("leaveRoom", (roomCode) => {
+    socket.leave(roomCode);
+    console.log(`User left room: ${roomCode}`);
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
 });
 
-//게임 관련 엔드포인트
-app.post("/api/createGame", async (req, res) => {
-  const { player1Email, player2Email } = req.body;
-
-  const initialGameState = {
-    // 초기 게임 상태 정의
-  };
-
+app.post("/api/startGame", async (req, res) => {
+  const { player1, player2 } = req.body;
+  const newCard = getRandomCard();
   const newGame = new Game({
-    player1Email,
-    player2Email,
-    gameState: initialGameState,
+    player1,
+    player2,
+    rounds: 15,
+    currentRound: 1,
+    player1Gold: 10000,
+    player2Gold: 10000,
+    player1Power: 0,
+    player2Power: 0,
+    currentCardPower: newCard.power,
+    currentCardName: newCard.name,
+    currentCardImage: newCard.image,
   });
 
   try {
     const savedGame = await newGame.save();
-    io.to(player1Email).emit("gameCreated", savedGame);
-    io.to(player2Email).emit("gameCreated", savedGame);
-    res.status(201).json({ success: true, gameId: savedGame._id });
+    res.status(201).json(savedGame);
   } catch (err) {
-    console.error("Error creating game:", err);
-    res.status(500).send("Failed to create game");
+    console.error("Error starting game:", err);
+    res.status(500).send("Failed to start game");
   }
 });
 
-app.post("/api/updateGame", async (req, res) => {
-  const { gameId, gameState } = req.body;
+// 배팅 엔드포인트
+app.post("/api/placeBet", async (req, res) => {
+  const { player1, player2, playerEmail, betAmount } = req.body;
 
   try {
-    const game = await Game.findById(gameId);
-    if (game) {
-      game.gameState = gameState;
+    const game = await Game.findOne({ player1, player2 });
+    if (!game) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Game not found" });
+    }
+
+    if (game.currentRound > game.rounds) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Game has already ended" });
+    }
+    //배팅 값 확인 및 배팅
+    if (playerEmail === game.player1 && game.player1Bet == null) {
+      if (betAmount > game.player1Gold) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Bet amount exceeds available gold",
+          });
+      }
+      game.player1Bet = betAmount;
+    } else if (playerEmail === game.player2 && game.player2Bet == null) {
+      if (betAmount > game.player2Gold) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Bet amount exceeds available gold",
+          });
+      }
+      game.player2Bet = betAmount;
+    } else {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Invalid player or bet already placed",
+        });
+    }
+    io.to(game.code).emit("betPlaced", { playerEmail, betAmount });
+
+    await game.save();
+
+    // 양쪽 플레이어가 모두 배팅을 완료했는지 확인
+    if (game.player1Bet !== null && game.player2Bet !== null) {
+      const player1Bet = game.player1Bet;
+      const player2Bet = game.player2Bet;
+
+      // 배팅 결과 계산
+      if (player1Bet > player2Bet) {
+        game.player1Gold -= player1Bet;
+        game.player2Gold -= player2Bet;
+        game.player1Power += game.currentCardPower;
+      } else if (player2Bet > player1Bet) {
+        game.player1Gold -= player1Bet;
+        game.player2Gold -= player2Bet;
+        game.player2Power += game.currentCardPower;
+      } else {
+        game.player1Gold -= player1Bet;
+        game.player2Gold -= player2Bet;
+        if (game.currentRound % 2 === 0) {
+          game.player1Power += game.currentCardPower;
+        } else {
+          game.player2Power += game.currentCardPower;
+        }
+      }
+      // 다음 라운드로 진행
+      game.currentRound += 1;
+      const newCard = getRandomCard(); // 새로운 카드 제공
+      game.currentCardPower = newCard.power;
+      game.currentCardName = newCard.name;
+      game.currentCardImage = newCard.image;
+
+      // 배팅 금액 초기화
+      game.player1Bet = null;
+      game.player2Bet = null;
+
       await game.save();
-      io.to(game.player1Email).emit("gameUpdated", game);
-      io.to(game.player2Email).emit("gameUpdated", game);
+
+      io.to(game.code).emit("roundResult", {
+        player1Gold: game.player1Gold,
+        player2Gold: game.player2Gold,
+        player1Power: game.player1Power,
+        player2Power: game.player2Power,
+        currentCard: newCard,
+        currentRound: game.currentRound,
+      });
       res.status(200).json({ success: true });
     } else {
-      res.status(404).json({ success: false, message: "Game not found" });
+      await game.save();
+      res
+        .status(200)
+        .json({ success: true, message: "Bet placed, waiting for opponent" });
     }
   } catch (err) {
-    console.error("Error updating game:", err);
-    res.status(500).send("Failed to update game");
+    console.error("Error placing bet:", err);
+    res.status(500).send("Failed to place bet");
   }
 });
 
-app.get("/api/getGameState", async (req, res) => {
-  const { gameId } = req.query;
+app.get("/api/getGameStatus", async (req, res) => {
+  const { player1, player2 } = req.query;
 
   try {
-    const game = await Game.findById(gameId);
+    const game = await Game.findOne({ player1, player2 });
     if (game) {
-      res.status(200).json({ success: true, gameState: game.gameState });
+      res.status(200).json(game);
     } else {
-      res.status(404).json({ success: false, message: "Game not found" });
+      res.status(404).json({ message: "Game not found" });
     }
   } catch (err) {
-    console.error("Error fetching game state:", err);
-    res.status(500).send("Failed to fetch game state");
+    console.error("Error fetching game status:", err);
+    res.status(500).send("Failed to fetch game status");
   }
 });
+
+function getRandomCard() {
+  const cards = [
+    { name: "castle", power: 3000, image: "castle.png" },
+    { name: "wall", power: 2000, image: "wall.png" },
+    { name: "soldier", power: 300, image: "soldier.png" },
+    { name: "spear", power: 500, image: "spear.png" },
+    { name: "archer", power: 700, image: "archer.png" },
+    { name: "cavalry", power: 1000, image: "cavalry.png" },
+    { name: "scholar", power: 300, image: "scholar.png" },
+    { name: "merchant", power: 500, image: "merchant.png" },
+    { name: "craft", power: 700, image: "craft.png" },
+    { name: "farmer", power: 1000, image: "farmer.png" },
+  ];
+
+  const randomIndex = Math.floor(Math.random() * cards.length);
+  return cards[randomIndex];
+}
 
 // 방이랑 유저 관련 엔드포인트들 (건드리지 마시오)
 
@@ -306,7 +426,9 @@ app.post("/api/checkAndStartMatch", async (req, res) => {
 
       io.to(code).emit("startMatch", { player1Email, player2Email });
 
-      res.status(200).json({ success: true });
+      await Room.deleteOne({ code });
+
+      res.status(200).json({ success: true, player1Email, player2Email });
     } else {
       res.status(404).json({ success: false, message: "Room not found" });
     }
@@ -469,6 +591,37 @@ app.get("/api/ranking", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+// Update user data
+app.post("/api/updateUser", (req, res) => {
+  const { email, nickname, kingdomName, profileImage } = req.body;
+  db.collection("users").updateOne(
+    { email: email },
+    {
+      $set: {
+        nickname: nickname,
+        kingdomName: kingdomName,
+        profileImage: profileImage,
+      },
+    },
+    (err, result) => {
+      if (err) {
+        res.status(500).send("Error updating user data");
+      } else if (result.matchedCount === 0) {
+        res.status(404).send("User not found");
+      } else {
+        res.send("User updated successfully");
+      }
+    }
+  );
+});
+
+// Check for duplicate nickname or kingdom name
+app.post("/api/checkAvailability", (req, res) => {
+  const { field, value } = req.body;
+  const isAvailable = !users.some((user) => user[field] === value);
+  res.json({ available: isAvailable });
 });
 
 const PORT = process.env.PORT || 80;
