@@ -107,14 +107,11 @@ class GameActivity : AppCompatActivity() {
     private fun setupSocket() {
         socket = IO.socket("http://172.10.7.80:80")
         socket.on(Socket.EVENT_CONNECT) {
-            Log.d("GameActivity", "Socket connected")
             socket.emit("joinRoom", "$player1Email-$player2Email")
         }
         socket.on("roundResult") { args ->
-            Log.d("GameActivity", "roundResult event received")
             runOnUiThread {
                 val data = args[0] as JSONObject
-                Log.d("GameActivity", "Data received: $data")
                 val player1Gold = data.getInt("player1Gold")
                 val player2Gold = data.getInt("player2Gold")
                 val player1Power = data.getInt("player1Power")
@@ -124,11 +121,21 @@ class GameActivity : AppCompatActivity() {
                 val currentCardPower = data.getInt("currentCardPower")
                 val currentRound = data.getInt("currentRound")
 
-                gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
+                gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound / 15\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
 
                 val resourceId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
                 cardImageView.setImageResource(resourceId)
-                Log.d("GameActivity", "UI updated")
+            }
+        }
+        socket.on("gameOver") { args ->
+            runOnUiThread {
+                val data = args[0] as JSONObject
+                val message = data.getString("message")
+                val intent = Intent(this, GameOverActivity::class.java).apply {
+                    putExtra("message", message)
+                }
+                startActivity(intent)
+                finish()
             }
         }
         socket.connect()

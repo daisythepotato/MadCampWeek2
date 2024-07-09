@@ -29,6 +29,9 @@ const userSchema = new mongoose.Schema({
   draws: Number,
   coins: Number,
   profileImage: String,
+  item1: Number,
+  item2: Number,
+  item3: Number,
 });
 
 const User = mongoose.model("User", userSchema);
@@ -114,6 +117,33 @@ app.post("/api/startGame", async (req, res) => {
   }
 });
 
+// 라운드 종료 후 게임 종료 체크 및 승패 결과 전송
+const checkGameOver = async (game) => {
+  if (game.currentRound > game.rounds) {
+    let result;
+    if (game.player1Power > game.player2Power) {
+      result = {
+        winner: game.player1,
+        loser: game.player2,
+        message: `${game.player1} wins!`,
+      };
+    } else if (game.player2Power > game.player1Power) {
+      result = {
+        winner: game.player2,
+        loser: game.player1,
+        message: `${game.player2} wins!`,
+      };
+    } else {
+      result = {
+        message: "It's a draw!",
+      };
+    }
+
+    io.to(`${game.player1}-${game.player2}`).emit("gameOver", result);
+    await Game.deleteOne({ code: game.code }); // 게임 종료 후 데이터 삭제
+  }
+};
+
 // 배팅 엔드포인트
 app.post("/api/placeBet", async (req, res) => {
   const { player1, player2, playerEmail, betAmount } = req.body;
@@ -160,8 +190,6 @@ app.post("/api/placeBet", async (req, res) => {
           message: "Invalid player or bet already placed",
         });
     }
-    io.to(game.code).emit("betPlaced", { playerEmail, betAmount });
-
     await game.save();
 
     // 양쪽 플레이어가 모두 배팅을 완료했는지 확인
@@ -181,7 +209,8 @@ app.post("/api/placeBet", async (req, res) => {
       } else {
         game.player1Gold -= player1Bet;
         game.player2Gold -= player2Bet;
-        if (game.currentRound % 2 === 0) {
+        //홀수 라운드에 플레이어1의 점수가 오름
+        if (game.currentRound % 2 === 1) {
           game.player1Power += game.currentCardPower;
         } else {
           game.player2Power += game.currentCardPower;
@@ -189,28 +218,32 @@ app.post("/api/placeBet", async (req, res) => {
       }
       // 다음 라운드로 진행
       game.currentRound += 1;
-      const newCard = getRandomCard(); // 새로운 카드 제공
-      game.currentCardPower = newCard.power;
-      game.currentCardName = newCard.name;
-      game.currentCardImage = newCard.image;
-
       // 배팅 금액 초기화
       game.player1Bet = null;
       game.player2Bet = null;
 
-      await game.save();
+      if (game.currentRound <= 15) {
+        const newCard = getRandomCard(); // 새로운 카드 제공
+        game.currentCardPower = newCard.power;
+        game.currentCardName = newCard.name;
+        game.currentCardImage = newCard.image;
+        await game.save();
 
-      io.to(`${game.player1}-${game.player2}`).emit("roundResult", {
-        player1Gold: game.player1Gold,
-        player2Gold: game.player2Gold,
-        player1Power: game.player1Power,
-        player2Power: game.player2Power,
-        currentCardName: newCard.name,
-        currentCardPower: newCard.power,
-        currentCardImage: newCard.image,
-        currentRound: game.currentRound,
-      });
+        io.to(`${game.player1}-${game.player2}`).emit("roundResult", {
+          player1Gold: game.player1Gold,
+          player2Gold: game.player2Gold,
+          player1Power: game.player1Power,
+          player2Power: game.player2Power,
+          currentCardName: newCard.name,
+          currentCardPower: newCard.power,
+          currentCardImage: newCard.image,
+          currentRound: game.currentRound,
+        });
+      }
       res.status(200).json({ success: true });
+
+      // 게임 종료 체크
+      await checkGameOver(game);
     } else {
       await game.save();
       res
@@ -505,6 +538,10 @@ app.post("/api/addGuest", async (req, res) => {
       losses: 0,
       draws: 0,
       coins: 0,
+      profileImage: "profile_image_1",
+      item1: 0,
+      item2: 0,
+      item3: 0,
     });
 
     const savedGuest = await newGuest.save();
@@ -540,6 +577,9 @@ app.post("/api/saveUser", async (req, res) => {
     draws: 0,
     coins: 0,
     profileImage,
+    item1: 0,
+    item2: 0,
+    item3: 0,
   });
 
   try {
