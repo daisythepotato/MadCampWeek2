@@ -3,6 +3,7 @@ package com.example.auctionkingdom
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -21,12 +22,14 @@ class GameActivity : AppCompatActivity() {
     private var player1Email: String? = null
     private var player2Email: String? = null
     private val client = OkHttpClient()
+    private lateinit var cardImageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
         gameStatusTextView = findViewById(R.id.game_status_text_view)
+        cardImageView = findViewById(R.id.card_image_view)
 
         player1Email = intent.getStringExtra("player1Email")
         player2Email = intent.getStringExtra("player2Email")
@@ -100,6 +103,7 @@ class GameActivity : AppCompatActivity() {
                         val player1Power = jsonResponse.getInt("player1Power")
                         val player2Power = jsonResponse.getInt("player2Power")
                         val currentCardPower = jsonResponse.getInt("currentCardPower")
+                        val currentCardImage = jsonResponse.getString("currentCardImage")
 
                         gameStatusTextView.text = """
                         Rounds: $currentRound / $rounds
@@ -109,6 +113,11 @@ class GameActivity : AppCompatActivity() {
                         Player 2 Power: $player2Power
                         Current Card Power: $currentCardPower
                     """.trimIndent()
+
+                        // 카드 이미지 설정
+                        val imageResId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
+                        cardImageView.setImageResource(imageResId)
+
                     } catch (e: Exception) {
                         Toast.makeText(this@GameActivity, "Failed to parse game status", Toast.LENGTH_SHORT).show()
                     }

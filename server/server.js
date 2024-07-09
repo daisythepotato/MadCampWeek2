@@ -53,6 +53,8 @@ const gameSchema = new mongoose.Schema({
   player1Power: Number,
   player2Power: Number,
   currentCardPower: Number,
+  currentCardName: String,
+  currentCardImage: String,
 });
 
 const Game = mongoose.model("Game", gameSchema);
@@ -78,9 +80,9 @@ io.on("connection", (socket) => {
   });
 });
 
-//게임 관련 엔드포인트
 app.post("/api/startGame", async (req, res) => {
   const { player1, player2 } = req.body;
+  const newCard = getRandomCard();
   const newGame = new Game({
     player1,
     player2,
@@ -90,7 +92,9 @@ app.post("/api/startGame", async (req, res) => {
     player2Gold: 10000,
     player1Power: 0,
     player2Power: 0,
-    currentCardPower: Math.floor(Math.random() * 10) + 1, // 임의의 카드 국력 값
+    currentCardPower: newCard.power,
+    currentCardName: newCard.name,
+    currentCardImage: newCard.image,
   });
 
   try {
@@ -137,6 +141,25 @@ app.get("/api/getGameStatus", async (req, res) => {
     res.status(500).send("Failed to fetch game status");
   }
 });
+
+// 카드 목록 추가
+const cards = [
+  { name: "castle", power: 3000, image: "castle.png" },
+  { name: "wall", power: 2000, image: "wall.png" },
+  { name: "soldier", power: 300, image: "soldier.png" },
+  { name: "spear", power: 500, image: "spear.png" },
+  { name: "archer", power: 700, image: "archer.png" },
+  { name: "cavalry", power: 1000, image: "cavalry.png" },
+  { name: "scholar", power: 300, image: "scholar.png" },
+  { name: "merchant", power: 500, image: "merchant.png" },
+  { name: "craft", power: 700, image: "craft.png" },
+  { name: "farmer", power: 1000, image: "farmer.png" },
+];
+
+const getRandomCard = () => {
+  const randomIndex = Math.floor(Math.random() * cards.length);
+  return cards[randomIndex];
+};
 
 // 방이랑 유저 관련 엔드포인트들 (건드리지 마시오)
 
@@ -474,6 +497,20 @@ app.get("/api/ranking", async (req, res) => {
     res.json(players);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Update user data
+app.post("/api/updateUser", (req, res) => {
+  const { email, nickname, kingdomName, profileImage } = req.body;
+  const user = users.find((user) => user.email === email);
+  if (user) {
+    user.nickname = nickname;
+    user.kingdomName = kingdomName;
+    user.profileImage = profileImage;
+    res.send("User updated successfully");
+  } else {
+    res.status(404).send("User not found");
   }
 });
 
