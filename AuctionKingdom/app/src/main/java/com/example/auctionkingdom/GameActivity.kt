@@ -184,23 +184,17 @@ class GameActivity : AppCompatActivity() {
                 runOnUiThread {
                     try {
                         val jsonResponse = JSONObject(responseData)
-                        val rounds = jsonResponse.getInt("rounds")
                         val currentRound = jsonResponse.getInt("currentRound")
                         val player1Gold = jsonResponse.getInt("player1Gold")
                         val player2Gold = jsonResponse.getInt("player2Gold")
                         val player1Power = jsonResponse.getInt("player1Power")
                         val player2Power = jsonResponse.getInt("player2Power")
+                        val currentCardName = jsonResponse.getString("currentCardName")
                         val currentCardPower = jsonResponse.getInt("currentCardPower")
                         val currentCardImage = jsonResponse.getString("currentCardImage")
 
-                        gameStatusTextView.text = """
-                        Rounds: $currentRound / $rounds
-                        Player 1 Gold: $player1Gold
-                        Player 2 Gold: $player2Gold
-                        Player 1 Power: $player1Power
-                        Player 2 Power: $player2Power
-                        Current Card Power: $currentCardPower
-                    """.trimIndent()
+                        gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound / 15\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
+
 
                         // 카드 이미지 설정
                         val imageResId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
