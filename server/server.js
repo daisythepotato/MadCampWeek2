@@ -514,6 +514,13 @@ app.post("/api/updateUser", (req, res) => {
   }
 });
 
+// Check for duplicate nickname or kingdom name
+app.post("/api/checkAvailability", (req, res) => {
+  const { field, value } = req.body;
+  const isAvailable = !users.some((user) => user[field] === value);
+  res.json({ available: isAvailable });
+});
+
 const PORT = process.env.PORT || 80;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
