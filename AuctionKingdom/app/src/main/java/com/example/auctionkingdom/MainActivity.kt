@@ -1,6 +1,7 @@
 package com.example.auctionkingdom
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,30 +10,35 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import org.json.JSONObject
+import java.io.File
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
+    private lateinit var profileNameTextView: TextView
+    private lateinit var kingdomNameTextView: TextView
+    private lateinit var coinTextView: TextView
+    private lateinit var profileImageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val email = intent.getStringExtra("email")
-        val profileNameTextView: TextView = findViewById(R.id.profile_name)
-        val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
-        val coinTextView: TextView = findViewById(R.id.coin_text)
-        val profileImageView: ImageView = findViewById(R.id.profile_image)
+        profileNameTextView = findViewById(R.id.profile_name)
+        kingdomNameTextView = findViewById(R.id.kingdom_name)
+        coinTextView = findViewById(R.id.coin_text)
+        profileImageView = findViewById(R.id.profile_image)
 
         // 사용자 데이터 불러오기
-        fetchUserData(email, profileNameTextView, kingdomNameTextView, coinTextView, profileImageView)
+        fetchUserData(email)
 
         // 프로필 이미지 클릭 이벤트
         profileImageView.setOnClickListener {
             val intent = Intent(this, ProfileDetailActivity::class.java)
             intent.putExtra("email", email)
-            startActivity(intent)
+            startActivityForResult(intent, PROFILE_DETAIL_REQUEST_CODE)
         }
 
         // 방 생성 및 입장 화면으로 이동
@@ -86,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchUserData(email: String?, profileNameTextView: TextView, kingdomNameTextView: TextView, coinTextView: TextView, profileImageView: ImageView) {
+    private fun fetchUserData(email: String?) {
         if (email == null) {
             return
         }
@@ -116,11 +122,11 @@ class MainActivity : AppCompatActivity() {
                         val coins = jsonResponse.getInt("coins")
                         val profileImageName = jsonResponse.getString("profileImage")
 
+                        val resId = resources.getIdentifier(profileImageName, "drawable", packageName)
+                        profileImageView.setImageResource(resId)
                         profileNameTextView.text = nickname
                         kingdomNameTextView.text = kingdomName
                         coinTextView.text = coins.toString()
-                        val resId = resources.getIdentifier(profileImageName, "drawable", packageName)
-                        profileImageView.setImageResource(resId)
                     } catch (e: Exception) {
                         profileNameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
@@ -129,5 +135,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PROFILE_DETAIL_REQUEST_CODE && resultCode == RESULT_OK) {
+            data?.let {
+                val nickname = it.getStringExtra("nickname")
+                val kingdomName = it.getStringExtra("kingdomName")
+                val profileImage = it.getStringExtra("profileImage")
+
+                val resId = resources.getIdentifier(profileImage, "drawable", packageName)
+                profileImageView.setImageResource(resId)
+                profileNameTextView.text = nickname
+                kingdomNameTextView.text = kingdomName
+            }
+        }
+    }
+
+    companion object {
+        private const val PROFILE_DETAIL_REQUEST_CODE = 1001
     }
 }

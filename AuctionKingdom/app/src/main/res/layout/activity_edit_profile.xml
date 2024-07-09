@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,91 +6,167 @@
     android:padding="16dp"
     tools:context=".EditProfileActivity">
 
-    <!-- Back Button -->
-    <ImageView
-        android:id="@+id/back_button"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_arrow_back"
-        android:contentDescription="Back"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp" />
-
-    <!-- Edit Title -->
-    <TextView
-        android:id="@+id/edit_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="EDIT"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
-
-    <!-- Profile Image and Navigation Arrows -->
+    <!-- Top Bar -->
     <RelativeLayout
-        android:id="@+id/profile_image_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/edit_title"
-        android:layout_marginTop="32dp">
-
-        <ImageView
-            android:id="@+id/left_arrow"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_arrow_left"
-            android:contentDescription="Previous Character"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true" />
-
-        <ImageView
-            android:id="@+id/profile_image"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@drawable/profile_image_1"
-            android:contentDescription="Profile Image"
-            android:scaleType="centerCrop"
-            android:layout_centerHorizontal="true" />
-
-        <ImageView
-            android:id="@+id/right_arrow"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_arrow_right"
-            android:contentDescription="Next Character"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
-
-    <!-- Nickname and Kingdom Name Fields -->
-    <LinearLayout
-        android:id="@+id/profile_info_container"
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@id/profile_image_container"
-        android:layout_marginTop="32dp"
-        android:gravity="center_horizontal">
+        android:background="#FFFFFF">
 
-        <EditText
-            android:id="@+id/nickname_input"
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="Back"
+            android:layout_alignParentStart="true"
+            android:layout_margin="16dp" />
+    </RelativeLayout>
+
+    <!-- Profile Title -->
+    <ImageView
+        android:id="@+id/edit_title"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:src="@drawable/edit_title"
+        android:contentDescription="Edit Title"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/top_bar"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true" />
+
+    <!-- ScrollView for content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/edit_title"
+        android:layout_above="@id/buttons_container">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="닉네임"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-        <EditText
-            android:id="@+id/kingdom_name_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="왕국 이름"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp" />
-    </LinearLayout>
+            <!-- Profile Image and Navigation Arrows -->
+            <RelativeLayout
+                android:id="@+id/profile_image_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="32dp"
+                android:padding="12dp">
+
+                <ImageView
+                    android:id="@+id/left_arrow"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_arrow_left"
+                    android:contentDescription="Previous Character"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true" />
+
+                <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="250dp"
+                    android:layout_height="300dp"
+                    android:src="@drawable/profile_image_1"
+                    android:contentDescription="Profile Image"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true" />
+
+                <ImageView
+                    android:id="@+id/right_arrow"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_arrow_right"
+                    android:contentDescription="Next Character"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <!-- Nickname and Kingdom Name Fields -->
+            <LinearLayout
+                android:id="@+id/profile_info_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="32dp"
+                android:gravity="center_horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <EditText
+                        android:id="@+id/nickname_input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="닉네임"
+                        android:textSize="18sp"
+                        android:gravity="center" />
+
+                    <Button
+                        android:id="@+id/check_nickname_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="중복 확인"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/nickname_result_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <EditText
+                        android:id="@+id/kingdom_name_input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="왕국 이름"
+                        android:textSize="18sp"
+                        android:gravity="center" />
+
+                    <Button
+                        android:id="@+id/check_kingdom_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="중복 확인"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/kingdom_name_result_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:gravity="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Confirm and Cancel Buttons -->
     <LinearLayout
@@ -100,7 +175,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_below="@id/profile_info_container"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp">
 
         <Button

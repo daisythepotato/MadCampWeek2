@@ -14,43 +14,48 @@ import java.math.RoundingMode
 class ProfileDetailActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
+    private lateinit var email: String
+    private lateinit var nicknameTextView: TextView
+    private lateinit var kingdomNameTextView: TextView
+    private lateinit var tierFlagImageView: ImageView
+    private lateinit var gameCountTextView: TextView
+    private lateinit var winRateTextView: TextView
+    private lateinit var scoreTextView: TextView
+    private lateinit var profileImageView: ImageView
+    private var profileImageName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_detail)
 
-        val email = intent.getStringExtra("email")
-        val nicknameTextView: TextView = findViewById(R.id.nickname)
-        val kingdomNameTextView: TextView = findViewById(R.id.kingdom_name)
-        val tierFlagImageView: ImageView = findViewById(R.id.tier_flag)
-        val gameCountTextView: TextView = findViewById(R.id.game_count)
-        val winRateTextView: TextView = findViewById(R.id.win_rate)
-        val scoreTextView: TextView = findViewById(R.id.score)
-        val profileImageView: ImageView = findViewById(R.id.profile_image)
+        email = intent.getStringExtra("email") ?: ""
+        nicknameTextView = findViewById(R.id.nickname)
+        kingdomNameTextView = findViewById(R.id.kingdom_name)
+        tierFlagImageView = findViewById(R.id.tier_flag)
+        gameCountTextView = findViewById(R.id.game_count)
+        winRateTextView = findViewById(R.id.win_rate)
+        scoreTextView = findViewById(R.id.score)
+        profileImageView = findViewById(R.id.profile_image)
         val editIcon: ImageView = findViewById(R.id.edit_icon)
         val backButton: ImageView = findViewById(R.id.back_button)
 
         // 사용자 데이터 불러오기
-        fetchUserData(email, nicknameTextView, kingdomNameTextView, tierFlagImageView, gameCountTextView, winRateTextView, scoreTextView, profileImageView)
+        fetchUserData(email)
 
         // 편집 아이콘 클릭 이벤트
         editIcon.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
             intent.putExtra("email", email)
-            startActivity(intent)
+            startActivityForResult(intent, EDIT_PROFILE_REQUEST_CODE)
         }
 
         // 뒤로 가기 버튼 클릭 이벤트
         backButton.setOnClickListener {
-            finish()
+            setResultAndFinish()
         }
     }
 
-    private fun fetchUserData(email: String?, nicknameTextView: TextView, kingdomNameTextView: TextView, tierFlagImageView: ImageView, gameCountTextView: TextView, winRateTextView: TextView, scoreTextView: TextView, profileImageView: ImageView) {
-        if (email == null) {
-            return
-        }
-
+    private fun fetchUserData(email: String) {
         val request = Request.Builder()
             .url("http://172.10.7.80:80/api/getUser?email=$email")
             .get()
@@ -79,7 +84,9 @@ class ProfileDetailActivity : AppCompatActivity() {
                         val draws = jsonResponse.getInt("draws")
                         val losses = jsonResponse.getInt("losses")
                         val score = jsonResponse.getInt("score")
-                        val profileImageRes = jsonResponse.getInt("profileImage")
+                        profileImageName = jsonResponse.getString("profileImage")
+                        val resId = resources.getIdentifier(profileImageName, "drawable", packageName)
+                        profileImageView.setImageResource(resId)
 
                         val totalGames = wins + draws + losses
                         val winRate = if (totalGames > 0) BigDecimal(wins.toDouble() / totalGames * 100).setScale(2, RoundingMode.HALF_UP).toDouble() else 0.0
@@ -88,11 +95,11 @@ class ProfileDetailActivity : AppCompatActivity() {
                         kingdomNameTextView.text = kingdomName
                         gameCountTextView.text = "${wins}승 ${draws}무 ${losses}패"
                         winRateTextView.text = "$winRate%"
-                        scoreTextView.text = "Score: $score"
+                        scoreTextView.text = "$score"
 
                         // 티어 깃발 이미지 설정
                         tierFlagImageView.setImageResource(getTierFlagResource(score))
-                        profileImageView.setImageResource(profileImageRes)
+
                     } catch (e: Exception) {
                         nicknameTextView.text = "Failed to parse data"
                         kingdomNameTextView.text = ""
@@ -111,5 +118,26 @@ class ProfileDetailActivity : AppCompatActivity() {
             score < 2000 -> R.drawable.silver_flag
             else -> R.drawable.gold_flag
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == EDIT_PROFILE_REQUEST_CODE && resultCode == RESULT_OK) {
+            fetchUserData(email)
+        }
+    }
+
+    private fun setResultAndFinish() {
+        val intent = Intent().apply {
+            putExtra("nickname", nicknameTextView.text.toString())
+            putExtra("kingdomName", kingdomNameTextView.text.toString())
+            putExtra("profileImage", profileImageName)
+        }
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+    companion object {
+        private const val EDIT_PROFILE_REQUEST_CODE = 1001
     }
 }
