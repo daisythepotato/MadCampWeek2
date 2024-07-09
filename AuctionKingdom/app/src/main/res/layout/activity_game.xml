@@ -1,122 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".GameActivity">
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/round_text_view"
+        android:id="@+id/player1_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Round: 1"
-        android:textSize="24sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp" />
+        android:text="Player 1"
+        android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/card_text_view"
+        android:id="@+id/player2_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Card: Castle (Power: 3000)"
-        android:textSize="20sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp" />
-
-    <ImageView
-        android:id="@+id/card_image_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/card_image_1"
-        android:layout_marginBottom="16dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:id="@+id/player1_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Player1"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/player2_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Player2"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:id="@+id/player1_gold_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Gold: 10000"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/player2_gold_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Gold: 10000"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:id="@+id/player1_power_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Power: 0"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/player2_power_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Power: 0"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <EditText
-        android:id="@+id/bet_amount_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter bet amount"
-        android:inputType="number"
-        android:layout_marginBottom="16dp" />
-
-    <Button
-        android:id="@+id/bet_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Place Bet" />
+        android:text="Player 2"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>
