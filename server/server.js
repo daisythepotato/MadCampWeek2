@@ -201,62 +201,6 @@ app.get("/api/getRoomDetails", async (req, res) => {
   }
 });
 
-// 게임 상태 요청 엔드포인트
-app.get("/api/getGameState", async (req, res) => {
-  const { code } = req.query;
-
-  try {
-    const room = await Room.findOne({ code });
-    if (room) {
-      res.status(200).json({ gameState: room.gameState });
-    } else {
-      res.status(404).json({ message: "Room not found" });
-    }
-  } catch (err) {
-    console.error("Error fetching game state:", err);
-    res.status(500).send("Failed to fetch game state");
-  }
-});
-
-// 게임 상태 업데이트 엔드포인트
-app.post("/api/updateGameState", async (req, res) => {
-  const { code, gameState } = req.body;
-
-  try {
-    const room = await Room.findOne({ code });
-    if (room) {
-      room.gameState = gameState;
-      await room.save();
-      res.status(200).send("Game state updated successfully");
-    } else {
-      res.status(404).json({ message: "Room not found" });
-    }
-  } catch (err) {
-    console.error("Error updating game state:", err);
-    res.status(500).send("Failed to update game state");
-  }
-});
-
-// 게임 결과 저장 엔드포인트
-app.post("/api/saveGameResult", async (req, res) => {
-  const { code, result } = req.body;
-
-  try {
-    const room = await Room.findOne({ code });
-    if (room) {
-      // 게임 결과를 처리하는 로직을 여기에 추가
-      // 예: 각 플레이어의 승리, 패배, 무승부 횟수를 업데이트
-
-      res.status(200).send("Game result saved successfully");
-    } else {
-      res.status(404).json({ message: "Room not found" });
-    }
-  } catch (err) {
-    console.error("Error saving game result:", err);
-    res.status(500).send("Failed to save game result");
-  }
-});
-
 app.post("/api/checkAndStartMatch", async (req, res) => {
   const { code, email } = req.body;
 
