@@ -71,10 +71,11 @@ app.use(cors());
 
 // 소켓 설정
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  //console.log("A user connected");
 
   socket.on("joinRoom", (roomCode) => {
     socket.join(roomCode);
+    console.log(`User joined room: ${roomCode}`);
   });
 
   socket.on("leaveRoom", (roomCode) => {
@@ -83,7 +84,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    //console.log("A user disconnected");
   });
 });
 
@@ -199,12 +200,14 @@ app.post("/api/placeBet", async (req, res) => {
 
       await game.save();
 
-      io.to(game.code).emit("roundResult", {
+      io.to(`${game.player1}-${game.player2}`).emit("roundResult", {
         player1Gold: game.player1Gold,
         player2Gold: game.player2Gold,
         player1Power: game.player1Power,
         player2Power: game.player2Power,
-        currentCard: newCard,
+        currentCardName: newCard.name,
+        currentCardPower: newCard.power,
+        currentCardImage: newCard.image,
         currentRound: game.currentRound,
       });
       res.status(200).json({ success: true });

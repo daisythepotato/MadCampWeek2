@@ -108,6 +108,7 @@ class GameActivity : AppCompatActivity() {
         socket = IO.socket("http://172.10.7.80:80")
         socket.on(Socket.EVENT_CONNECT) {
             Log.d("GameActivity", "Socket connected")
+            socket.emit("joinRoom", "$player1Email-$player2Email")
         }
         socket.on("roundResult") { args ->
             Log.d("GameActivity", "roundResult event received")
