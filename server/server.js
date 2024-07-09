@@ -58,11 +58,56 @@ const gameSchema = new mongoose.Schema({
   currentCardPower: Number,
   currentCardName: String,
   currentCardImage: String,
-  player1Bet: { type: Number, default: null }, // 추가된 필드
-  player2Bet: { type: Number, default: null }, // 추가된 필드
+  player1Bet: { type: Number, default: null },
+  player2Bet: { type: Number, default: null },
+  cardDeck: { type: Array, default: [] },
 });
 
 const Game = mongoose.model("Game", gameSchema);
+
+const cards = [
+  { name: "castle", power: 3000, image: "castle.png" },
+  { name: "wall", power: 2000, image: "wall.png" },
+  { name: "castle", power: 3000, image: "castle.png" },
+  { name: "wall", power: 2000, image: "wall.png" },
+  { name: "soldier", power: 300, image: "soldier.png" },
+  { name: "spear", power: 500, image: "spear.png" },
+  { name: "archer", power: 700, image: "archer.png" },
+  { name: "cavalry", power: 1000, image: "cavalry.png" },
+  { name: "scholar", power: 300, image: "scholar.png" },
+  { name: "merchant", power: 500, image: "merchant.png" },
+  { name: "craft", power: 700, image: "craft.png" },
+  { name: "farmer", power: 1000, image: "farmer.png" },
+];
+
+const initializeCardDeck = () => {
+  const deck = [];
+
+  // castle과 wall 카드 각각 두 장씩 추가
+  deck.push(...cards.filter((card) => card.name === "castle").slice(0, 2));
+  deck.push(...cards.filter((card) => card.name === "wall").slice(0, 2));
+
+  // 나머지 카드 중에서 하나씩 추가
+  const remainingCards = cards.filter(
+    (card) => card.name !== "castle" && card.name !== "wall"
+  );
+  deck.push(...remainingCards);
+
+  // 총 15장으로 덱을 완성하기 위해 남은 카드를 무작위로 추가
+  while (deck.length < 15) {
+    const randomCard =
+      remainingCards[Math.floor(Math.random() * remainingCards.length)];
+    deck.push(randomCard);
+  }
+
+  // 덱을 섞음
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+
+  return deck.slice(0, 15); // 15개의 카드를 반환
+};
 
 // Express 애플리케이션 설정
 const app = express();
@@ -93,7 +138,9 @@ io.on("connection", (socket) => {
 
 app.post("/api/startGame", async (req, res) => {
   const { player1, player2 } = req.body;
-  const newCard = getRandomCard();
+
+  const deck = initializeCardDeck();
+
   const newGame = new Game({
     player1,
     player2,
@@ -103,9 +150,10 @@ app.post("/api/startGame", async (req, res) => {
     player2Gold: 10000,
     player1Power: 0,
     player2Power: 0,
-    currentCardPower: newCard.power,
-    currentCardName: newCard.name,
-    currentCardImage: newCard.image,
+    currentCardPower: deck[0].power,
+    currentCardName: deck[0].name,
+    currentCardImage: deck[0].image,
+    cardDeck: deck,
   });
 
   try {
@@ -223,7 +271,7 @@ app.post("/api/placeBet", async (req, res) => {
       game.player2Bet = null;
 
       if (game.currentRound <= 15) {
-        const newCard = getRandomCard(); // 새로운 카드 제공
+        const newCard = game.cardDeck[game.currentRound - 1]; // 새로운 카드 제공
         game.currentCardPower = newCard.power;
         game.currentCardName = newCard.name;
         game.currentCardImage = newCard.image;
@@ -234,9 +282,9 @@ app.post("/api/placeBet", async (req, res) => {
           player2Gold: game.player2Gold,
           player1Power: game.player1Power,
           player2Power: game.player2Power,
-          currentCardName: newCard.name,
-          currentCardPower: newCard.power,
-          currentCardImage: newCard.image,
+          currentCardName: game.currentCardName,
+          currentCardPower: game.currentCardPower,
+          currentCardImage: game.currentCardImage,
           currentRound: game.currentRound,
         });
       }
@@ -271,24 +319,6 @@ app.get("/api/getGameStatus", async (req, res) => {
     res.status(500).send("Failed to fetch game status");
   }
 });
-
-function getRandomCard() {
-  const cards = [
-    { name: "castle", power: 3000, image: "castle.png" },
-    { name: "wall", power: 2000, image: "wall.png" },
-    { name: "soldier", power: 300, image: "soldier.png" },
-    { name: "spear", power: 500, image: "spear.png" },
-    { name: "archer", power: 700, image: "archer.png" },
-    { name: "cavalry", power: 1000, image: "cavalry.png" },
-    { name: "scholar", power: 300, image: "scholar.png" },
-    { name: "merchant", power: 500, image: "merchant.png" },
-    { name: "craft", power: 700, image: "craft.png" },
-    { name: "farmer", power: 1000, image: "farmer.png" },
-  ];
-
-  const randomIndex = Math.floor(Math.random() * cards.length);
-  return cards[randomIndex];
-}
 
 // 방이랑 유저 관련 엔드포인트들 (건드리지 마시오)
 
