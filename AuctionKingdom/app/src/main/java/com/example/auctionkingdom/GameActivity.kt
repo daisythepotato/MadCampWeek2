@@ -34,6 +34,11 @@ class GameActivity : AppCompatActivity() {
         gameStatusTextView.text = "Player 1: $player1Email\nPlayer 2: $player2Email"
 
         setupSocket()
+
+        // 게임 시작
+        if (player1Email != null && player2Email != null) {
+            startGame(player1Email!!, player2Email!!)
+        }
     }
 
     private fun setupSocket() {
@@ -44,6 +49,74 @@ class GameActivity : AppCompatActivity() {
         }
         socket.connect()
     }
+
+    private fun startGame(player1: String, player2: String) {
+        val json = JSONObject().apply {
+            put("player1", player1)
+            put("player2", player2)
+        }
+
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/startGame")
+            .post(RequestBody.create("application/json".toMediaType(), json.toString()))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@GameActivity, "Failed to start game", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                fetchGameStatus(player1, player2)
+            }
+        })
+    }
+
+
+    private fun fetchGameStatus(player1: String, player2: String) {
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/getGameStatus?player1=$player1&player2=$player2")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@GameActivity, "Failed to fetch game status", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
+                runOnUiThread {
+                    try {
+                        val jsonResponse = JSONObject(responseData)
+                        val rounds = jsonResponse.getInt("rounds")
+                        val currentRound = jsonResponse.getInt("currentRound")
+                        val player1Gold = jsonResponse.getInt("player1Gold")
+                        val player2Gold = jsonResponse.getInt("player2Gold")
+                        val player1Power = jsonResponse.getInt("player1Power")
+                        val player2Power = jsonResponse.getInt("player2Power")
+                        val currentCardPower = jsonResponse.getInt("currentCardPower")
+
+                        gameStatusTextView.text = """
+                        Rounds: $currentRound / $rounds
+                        Player 1 Gold: $player1Gold
+                        Player 2 Gold: $player2Gold
+                        Player 1 Power: $player1Power
+                        Player 2 Power: $player2Power
+                        Current Card Power: $currentCardPower
+                    """.trimIndent()
+                    } catch (e: Exception) {
+                        Toast.makeText(this@GameActivity, "Failed to parse game status", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

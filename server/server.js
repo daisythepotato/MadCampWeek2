@@ -44,10 +44,15 @@ const Room = mongoose.model("Room", roomSchema);
 
 // 게임 스키마 및 모델 설정
 const gameSchema = new mongoose.Schema({
-  player1Email: String,
-  player2Email: String,
-  gameState: Object,
-  createdAt: { type: Date, default: Date.now },
+  player1: String,
+  player2: String,
+  rounds: Number,
+  currentRound: Number,
+  player1Gold: Number,
+  player2Gold: Number,
+  player1Power: Number,
+  player2Power: Number,
+  currentCardPower: Number,
 });
 
 const Game = mongoose.model("Game", gameSchema);
@@ -74,27 +79,26 @@ io.on("connection", (socket) => {
 });
 
 //게임 관련 엔드포인트
-app.post("/api/createGame", async (req, res) => {
-  const { player1Email, player2Email } = req.body;
-
-  const initialGameState = {
-    // 초기 게임 상태 정의
-  };
-
+app.post("/api/startGame", async (req, res) => {
+  const { player1, player2 } = req.body;
   const newGame = new Game({
-    player1Email,
-    player2Email,
-    gameState: initialGameState,
+    player1,
+    player2,
+    rounds: 15,
+    currentRound: 1,
+    player1Gold: 10000,
+    player2Gold: 10000,
+    player1Power: 0,
+    player2Power: 0,
+    currentCardPower: Math.floor(Math.random() * 10) + 1, // 임의의 카드 국력 값
   });
 
   try {
     const savedGame = await newGame.save();
-    io.to(player1Email).emit("gameCreated", savedGame);
-    io.to(player2Email).emit("gameCreated", savedGame);
-    res.status(201).json({ success: true, gameId: savedGame._id });
+    res.status(201).json(savedGame);
   } catch (err) {
-    console.error("Error creating game:", err);
-    res.status(500).send("Failed to create game");
+    console.error("Error starting game:", err);
+    res.status(500).send("Failed to start game");
   }
 });
 
@@ -118,19 +122,19 @@ app.post("/api/updateGame", async (req, res) => {
   }
 });
 
-app.get("/api/getGameState", async (req, res) => {
-  const { gameId } = req.query;
+app.get("/api/getGameStatus", async (req, res) => {
+  const { player1, player2 } = req.query;
 
   try {
-    const game = await Game.findById(gameId);
+    const game = await Game.findOne({ player1, player2 });
     if (game) {
-      res.status(200).json({ success: true, gameState: game.gameState });
+      res.status(200).json(game);
     } else {
-      res.status(404).json({ success: false, message: "Game not found" });
+      res.status(404).json({ message: "Game not found" });
     }
   } catch (err) {
-    console.error("Error fetching game state:", err);
-    res.status(500).send("Failed to fetch game state");
+    console.error("Error fetching game status:", err);
+    res.status(500).send("Failed to fetch game status");
   }
 });
 
