@@ -46,7 +46,7 @@
         android:layout_height="200dp"
         android:layout_below="@id/info_text"
         android:layout_margin="16dp"
-        android:src="@drawable/card_image_1"
+        android:src="@drawable/castle"
         android:scaleType="fitCenter"
         android:contentDescription="게임 화면" />
 

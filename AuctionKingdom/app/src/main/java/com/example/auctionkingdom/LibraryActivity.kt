@@ -37,16 +37,16 @@ class LibraryActivity : AppCompatActivity() {
     private fun getCardData(): List<Int> {
         // 여기서 카드에 사용할 이미지 리소스 ID 리스트를 반환합니다.
         return listOf(
-            R.drawable.card_image_1,
-            R.drawable.card_image_2,
-            R.drawable.card_image_3,
-            R.drawable.card_image_4,
-            R.drawable.card_image_5,
-            R.drawable.card_image_6,
-            R.drawable.card_image_7,
-            R.drawable.card_image_8,
-            R.drawable.card_image_9,
-            R.drawable.card_image_10
+            R.drawable.castle,
+            R.drawable.wall,
+            R.drawable.soldier,
+            R.drawable.spear,
+            R.drawable.archer,
+            R.drawable.cavalry,
+            R.drawable.scholar,
+            R.drawable.merchant,
+            R.drawable.craft,
+            R.drawable.farmer
         )
     }
 
