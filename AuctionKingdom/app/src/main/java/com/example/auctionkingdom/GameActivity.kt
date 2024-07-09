@@ -120,11 +120,21 @@ class GameActivity : AppCompatActivity() {
                 val currentCardImage = data.getString("currentCardImage")
                 val currentCardPower = data.getInt("currentCardPower")
                 val currentRound = data.getInt("currentRound")
+                val player1Bet = data.getInt("player1Bet")
+                val player2Bet = data.getInt("player2Bet")
 
                 gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound / 15\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
 
                 val resourceId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
                 cardImageView.setImageResource(resourceId)
+
+                AlertDialog.Builder(this)
+                    .setTitle("Round ${currentRound-1} Result")
+                    .setMessage("Player 1 Bet: $player1Bet\nPlayer 2 Bet: $player2Bet\n")
+                    .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                        dialog.dismiss()
+                    })
+                    .show()
             }
         }
         socket.on("gameOver") { args ->
