@@ -55,6 +55,8 @@ const gameSchema = new mongoose.Schema({
   currentCardPower: Number,
   currentCardName: String,
   currentCardImage: String,
+  player1Bet: { type: Number, default: null }, // 추가된 필드
+  player2Bet: { type: Number, default: null }, // 추가된 필드
 });
 
 const Game = mongoose.model("Game", gameSchema);
@@ -103,6 +105,63 @@ app.post("/api/startGame", async (req, res) => {
   } catch (err) {
     console.error("Error starting game:", err);
     res.status(500).send("Failed to start game");
+  }
+});
+
+// 배팅 엔드포인트
+app.post("/api/placeBet", async (req, res) => {
+  const { player1, player2, playerEmail, betAmount } = req.body;
+
+  try {
+    const game = await Game.findOne({ player1, player2 });
+    if (!game) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Game not found" });
+    }
+
+    if (game.currentRound > game.rounds) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Game has already ended" });
+    }
+
+    if (playerEmail === game.player1 && game.player1Bet == null) {
+      if (betAmount > game.player1Gold) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Bet amount exceeds available gold",
+          });
+      }
+      game.player1Bet = betAmount;
+    } else if (playerEmail === game.player2 && game.player2Bet == null) {
+      if (betAmount > game.player2Gold) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Bet amount exceeds available gold",
+          });
+      }
+      game.player2Bet = betAmount;
+    } else {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Invalid player or bet already placed",
+        });
+    }
+
+    await game.save();
+    io.to(game.code).emit("betPlaced", { playerEmail, betAmount });
+
+    res.status(200).json({ success: true, game });
+  } catch (err) {
+    console.error("Error placing bet:", err);
+    res.status(500).send("Failed to place bet");
   }
 });
 
