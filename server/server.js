@@ -41,6 +41,17 @@ const roomSchema = new mongoose.Schema({
 });
 
 const Room = mongoose.model("Room", roomSchema);
+
+// 게임 스키마 및 모델 설정
+const gameSchema = new mongoose.Schema({
+  player1Email: String,
+  player2Email: String,
+  gameState: Object,
+  createdAt: { type: Date, default: Date.now },
+});
+
+const Game = mongoose.model("Game", gameSchema);
+
 // Express 애플리케이션 설정
 const app = express();
 const server = http.createServer(app);
@@ -63,6 +74,65 @@ io.on("connection", (socket) => {
 });
 
 //게임 관련 엔드포인트
+app.post("/api/createGame", async (req, res) => {
+  const { player1Email, player2Email } = req.body;
+
+  const initialGameState = {
+    // 초기 게임 상태 정의
+  };
+
+  const newGame = new Game({
+    player1Email,
+    player2Email,
+    gameState: initialGameState,
+  });
+
+  try {
+    const savedGame = await newGame.save();
+    io.to(player1Email).emit("gameCreated", savedGame);
+    io.to(player2Email).emit("gameCreated", savedGame);
+    res.status(201).json({ success: true, gameId: savedGame._id });
+  } catch (err) {
+    console.error("Error creating game:", err);
+    res.status(500).send("Failed to create game");
+  }
+});
+
+app.post("/api/updateGame", async (req, res) => {
+  const { gameId, gameState } = req.body;
+
+  try {
+    const game = await Game.findById(gameId);
+    if (game) {
+      game.gameState = gameState;
+      await game.save();
+      io.to(game.player1Email).emit("gameUpdated", game);
+      io.to(game.player2Email).emit("gameUpdated", game);
+      res.status(200).json({ success: true });
+    } else {
+      res.status(404).json({ success: false, message: "Game not found" });
+    }
+  } catch (err) {
+    console.error("Error updating game:", err);
+    res.status(500).send("Failed to update game");
+  }
+});
+
+app.get("/api/getGameState", async (req, res) => {
+  const { gameId } = req.query;
+
+  try {
+    const game = await Game.findById(gameId);
+    if (game) {
+      res.status(200).json({ success: true, gameState: game.gameState });
+    } else {
+      res.status(404).json({ success: false, message: "Game not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching game state:", err);
+    res.status(500).send("Failed to fetch game state");
+  }
+});
 
 // 방이랑 유저 관련 엔드포인트들 (건드리지 마시오)
 
