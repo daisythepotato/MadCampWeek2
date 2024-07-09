@@ -111,6 +111,7 @@ class RoomDetailActivity : AppCompatActivity() {
                 val intent = Intent(this, GameActivity::class.java)
                 intent.putExtra("player1Email", player1Email)
                 intent.putExtra("player2Email", player2Email)
+                intent.putExtra("currentEmail", email)
                 startActivity(intent)
             }
         }
