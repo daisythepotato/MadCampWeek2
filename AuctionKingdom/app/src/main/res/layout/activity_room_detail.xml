@@ -62,21 +62,24 @@
                         android:layout_height="wrap_content"
                         android:text="Player 1 Name"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:singleLine="true"/>
 
                     <TextView
                         android:id="@+id/p1_kingdom_name_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Player 1 Kingdom"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:singleLine="true"/>
 
                     <TextView
                         android:id="@+id/p1_ready_status_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ready/Unready"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:singleLine="true"/>
                 </LinearLayout>
                 <ImageView
                     android:id="@+id/p1_score_flag_image_view"
@@ -143,21 +146,24 @@
                         android:layout_height="wrap_content"
                         android:text="Player 2 Name"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:singleLine="true"/>
 
                     <TextView
                         android:id="@+id/p2_kingdom_name_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Player 2 Kingdom"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:singleLine="true"/>
 
                     <TextView
                         android:id="@+id/p2_ready_status_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ready/Unready"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:singleLine="true"/>
                 </LinearLayout>
                 <ImageView
                     android:id="@+id/p2_score_flag_image_view"
