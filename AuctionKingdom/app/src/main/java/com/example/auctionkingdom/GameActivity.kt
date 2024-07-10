@@ -29,6 +29,7 @@ class GameActivity : AppCompatActivity() {
     private var currentEmail: String? = null
     private var opponentEmail: String? = null
     private val client = OkHttpClient()
+    private lateinit var opponentBetStatusTextView: TextView
     private lateinit var cardImageView: ImageView
     private lateinit var betAmountEditText: EditText
     private lateinit var placeBetButton: Button
@@ -53,6 +54,7 @@ class GameActivity : AppCompatActivity() {
         cardImageView = findViewById(R.id.card_image_view)
         betAmountEditText = findViewById(R.id.bet_amount_edit_text)
         placeBetButton = findViewById(R.id.place_bet_button)
+        opponentBetStatusTextView = findViewById(R.id.opponent_bet_status_text_view)
 
         player1ProfileImage = findViewById(R.id.player1_profile_image)
         player1Name = findViewById(R.id.player1_name)
@@ -151,17 +153,6 @@ class GameActivity : AppCompatActivity() {
                 val player1Bet = data.getInt("player1Bet")
                 val player2Bet = data.getInt("player2Bet")
 
-                updateUI(
-                    player1Gold,
-                    player1Power,
-                    player2Gold,
-                    player2Power,
-                    currentCardName,
-                    currentCardPower,
-                    currentCardImage,
-                    currentRound
-                )
-
                 if (currentEmail == player1Email) {
                     updateUI(
                         player1Gold,
@@ -192,6 +183,16 @@ class GameActivity : AppCompatActivity() {
                         dialog.dismiss()
                     })
                     .show()
+            }
+        }
+        socket.on("betPlaced") { args ->
+            runOnUiThread {
+                val data = args[0] as JSONObject
+                val betplayerEmail = data.getString("playerEmail")
+                Log.d("Betting","$betplayerEmail")
+                if (betplayerEmail != currentEmail) {
+                    opponentBetStatusTextView.text = "상대방 배팅 완료!!"
+                }
             }
         }
         socket.on("gameOver") { args ->
@@ -226,6 +227,8 @@ class GameActivity : AppCompatActivity() {
 
         val resourceId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
         cardImageView.setImageResource(resourceId)
+
+        opponentBetStatusTextView.text="상대방 베팅 중..."
     }
 
     private fun fetchUserInfo(email: String?, isCurrentPlayer: Boolean) {
