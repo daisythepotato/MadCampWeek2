@@ -23,10 +23,12 @@ class RoomDetailActivity : AppCompatActivity() {
     private lateinit var p1KingdomNameTextView: TextView
     private lateinit var p1ReadyStatusTextView: TextView
     private lateinit var p1ProfileImageView: ImageView
+    private lateinit var p1ScoreFlagImageView: ImageView
     private lateinit var p2NameTextView: TextView
     private lateinit var p2KingdomNameTextView: TextView
     private lateinit var p2ReadyStatusTextView: TextView
     private lateinit var p2ProfileImageView: ImageView
+    private lateinit var p2ScoreFlagImageView: ImageView
     private lateinit var leaveRoomButton: ImageButton
     private lateinit var toggleReadyButton: ImageButton
     private lateinit var matchButton: ImageButton
@@ -42,10 +44,12 @@ class RoomDetailActivity : AppCompatActivity() {
         p1KingdomNameTextView = findViewById(R.id.p1_kingdom_name_text_view)
         p1ReadyStatusTextView = findViewById(R.id.p1_ready_status_text_view)
         p1ProfileImageView = findViewById(R.id.p1_profile_image_view)
+        p1ScoreFlagImageView = findViewById(R.id.p1_score_flag_image_view)
         p2NameTextView = findViewById(R.id.p2_name_text_view)
         p2KingdomNameTextView = findViewById(R.id.p2_kingdom_name_text_view)
         p2ReadyStatusTextView = findViewById(R.id.p2_ready_status_text_view)
         p2ProfileImageView = findViewById(R.id.p2_profile_image_view)
+        p2ScoreFlagImageView = findViewById(R.id.p2_score_flag_image_view)
         leaveRoomButton = findViewById(R.id.leave_room_button)
         toggleReadyButton = findViewById(R.id.toggle_ready_button)
         matchButton = findViewById(R.id.match_button)
@@ -165,6 +169,15 @@ class RoomDetailActivity : AppCompatActivity() {
                             p1ReadyStatusTextView.text = readyStatus1
                             val profileImageRes = resources.getIdentifier(player1.getString("profileImage"), "drawable", packageName)
                             p1ProfileImageView.setImageResource(profileImageRes)
+
+                            // 플레이어 1 점수에 따른 깃발 설정
+                            val player1Score = player1.getInt("score")
+                            val player1FlagRes = when {
+                                player1Score < 1000 -> R.drawable.bronze_flag
+                                player1Score < 2000 -> R.drawable.silver_flag
+                                else -> R.drawable.gold_flag
+                            }
+                            p1ScoreFlagImageView.setImageResource(player1FlagRes)
                         }
 
                         // 두 번째 플레이어 정보
@@ -176,12 +189,22 @@ class RoomDetailActivity : AppCompatActivity() {
                             p2ReadyStatusTextView.text = readyStatus2
                             val profileImageRes = resources.getIdentifier(player2.getString("profileImage"), "drawable", packageName)
                             p2ProfileImageView.setImageResource(profileImageRes)
+
+                            // 플레이어 2 점수에 따른 깃발 설정
+                            val player2Score = player2.getInt("score")
+                            val player2FlagRes = when {
+                                player2Score < 1000 -> R.drawable.bronze_flag
+                                player2Score < 2000 -> R.drawable.silver_flag
+                                else -> R.drawable.gold_flag
+                            }
+                            p2ScoreFlagImageView.setImageResource(player2FlagRes)
                         } else {
                             // 두 번째 플레이어가 없을 때 처리
                             p2NameTextView.text = "Waiting for Player 2"
                             p2KingdomNameTextView.text = ""
                             p2ReadyStatusTextView.text = ""
                             p2ProfileImageView.setImageResource(R.drawable.default_image)
+                            p2ScoreFlagImageView.setImageResource(android.R.color.transparent) // 빈 이미지로 설정
                         }
                     } catch (e: Exception) {
                         Toast.makeText(this@RoomDetailActivity, "Failed to parse room details", Toast.LENGTH_SHORT).show()
