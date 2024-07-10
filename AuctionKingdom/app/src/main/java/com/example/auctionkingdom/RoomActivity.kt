@@ -2,6 +2,7 @@ package com.example.auctionkingdom
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -9,6 +10,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.socket.client.IO
 import io.socket.client.Socket
 import okhttp3.*
@@ -17,10 +20,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
+data class Room(val code: String, val playerCount: Int)
+
 class RoomActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
-    private lateinit var roomsTextView: TextView
+    private lateinit var roomsRecyclerView: RecyclerView
     private var email: String? = null
     private var currentRoomCode: String? = null
     private lateinit var socket: Socket // 소켓 변수 추가
@@ -33,7 +38,8 @@ class RoomActivity : AppCompatActivity() {
 
         val createRoomButton: ImageButton = findViewById(R.id.create_room_button)
         val joinRoomButton: ImageButton = findViewById(R.id.join_room_button)
-        roomsTextView = findViewById(R.id.rooms_text_view)
+        roomsRecyclerView = findViewById(R.id.rooms_recycler_view)
+        roomsRecyclerView.layoutManager = LinearLayoutManager(this)
 
         createRoomButton.setOnClickListener {
             showRoomCodeDialog("Create Room") { roomCode ->
@@ -208,19 +214,21 @@ class RoomActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseData = response.body?.string()
+                Log.d("RoomActivity", "Response Data: $responseData") // 응답 데이터 로그 출력
                 runOnUiThread {
                     try {
-                        val jsonArray = JSONArray(responseData)
-                        val roomsList = StringBuilder()
-                        for (i in 0 until jsonArray.length()) {
-                            val room = jsonArray.getJSONObject(i)
+                        val jsonResponse = JSONArray(responseData)
+                        val rooms = mutableListOf<Room>()
+                        for (i in 0 until jsonResponse.length()) {
+                            val room = jsonResponse.getJSONObject(i)
                             val code = room.getString("code")
                             val players = room.getJSONArray("players")
-                            roomsList.append("Room: $code, Players: ${players.length()}/2\n")
+                            rooms.add(Room(code, players.length()))
                         }
-                        roomsTextView.text = roomsList.toString()
+                        roomsRecyclerView.adapter = RoomAdapter(rooms)
                     } catch (e: Exception) {
-                        Toast.makeText(this@RoomActivity, "Failed to parse rooms response", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@RoomActivity, "Failed to parse rooms", Toast.LENGTH_SHORT).show()
+                        e.printStackTrace()
                     }
                 }
             }

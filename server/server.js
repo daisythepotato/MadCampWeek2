@@ -557,19 +557,23 @@ app.post("/api/checkUser", async (req, res) => {
 
 app.post("/api/addGuest", async (req, res) => {
   try {
+    // 모든 Guest 계정을 가져옵니다.
     const guests = await User.find({ email: "" }).sort({ nickname: 1 });
-    let newGuestNumber = 1;
 
-    for (const guest of guests) {
-      const guestNumber = parseInt(guest.nickname.replace("Guest", ""));
-      if (guestNumber !== newGuestNumber) {
-        break;
-      }
+    // Guest 번호를 추적하기 위한 배열 생성
+    const guestNumbers = guests.map((guest) =>
+      parseInt(guest.nickname.replace("Guest", ""))
+    );
+
+    // 첫 번째 비어 있는 Guest 번호를 찾습니다.
+    let newGuestNumber = 1;
+    while (guestNumbers.includes(newGuestNumber)) {
       newGuestNumber++;
     }
 
+    // 새로운 Guest 계정을 생성합니다.
     const newGuest = new User({
-      email: "",
+      email: "AuctionKingdomGuest${newGuestNumber}",
       nickname: `Guest${newGuestNumber}`,
       kingdomName: `GuestKingdom${newGuestNumber}`,
       score: 0,
@@ -577,12 +581,9 @@ app.post("/api/addGuest", async (req, res) => {
       losses: 0,
       draws: 0,
       coins: 0,
-      profileImage: "profile_image_1",
-      item1: 0,
-      item2: 0,
-      item3: 0,
     });
 
+    // 새로운 Guest 계정을 저장합니다.
     const savedGuest = await newGuest.save();
     res.status(201).json({ guest: savedGuest });
   } catch (err) {
@@ -601,6 +602,20 @@ app.post("/api/deleteGuest", async (req, res) => {
     console.error("Error deleting guest:", err);
     res.status(500).send("Failed to delete guest");
   }
+});
+
+// Delete guest user data
+app.post("/api/deleteUser", (req, res) => {
+  const { email } = req.body;
+  db.collection("users").deleteOne({ email: email }, (err, result) => {
+    if (err) {
+      res.status(500).send("Error deleting user data");
+    } else if (result.deletedCount === 0) {
+      res.status(404).send("User not found");
+    } else {
+      res.send("User deleted successfully");
+    }
+  });
 });
 
 app.post("/api/saveUser", async (req, res) => {
@@ -649,22 +664,18 @@ app.post("/api/checkAvailability", async (req, res) => {
   }
 });
 
-app.get("/api/getUser", async (req, res) => {
-  const { email } = req.query;
-
-  try {
-    const user = await User.findOne({ email });
-    if (user) {
-      res.status(200).json(user);
+app.get("/api/getUser", (req, res) => {
+  const email = req.query.email;
+  db.collection("users").findOne({ email: email }, (err, user) => {
+    if (err) {
+      res.status(500).json({ error: "Error retrieving user data" });
+    } else if (!user) {
+      res.status(404).json({ error: "User not found" });
     } else {
-      res.status(404).send("User not found");
+      res.json(user);
     }
-  } catch (err) {
-    console.error("Error fetching user:", err);
-    res.status(500).send("Failed to fetch user");
-  }
+  });
 });
-
 // 랭킹 데이터를 가져오는 엔드포인트
 app.get("/api/ranking", async (req, res) => {
   try {
