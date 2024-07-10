@@ -35,14 +35,14 @@ class GameActivity : AppCompatActivity() {
     private lateinit var player1ProfileImage: ImageView
     private lateinit var player1Name: TextView
     private lateinit var player1KingdomName: TextView
-    private lateinit var player1Gold: TextView
-    private lateinit var player1Power: TextView
+    private lateinit var player1GoldText: TextView
+    private lateinit var player1PowerText: TextView
 
     private lateinit var player2ProfileImage: ImageView
     private lateinit var player2Name: TextView
     private lateinit var player2KingdomName: TextView
-    private lateinit var player2Gold: TextView
-    private lateinit var player2Power: TextView
+    private lateinit var player2GoldText: TextView
+    private lateinit var player2PowerText: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,14 +57,14 @@ class GameActivity : AppCompatActivity() {
         player1ProfileImage = findViewById(R.id.player1_profile_image)
         player1Name = findViewById(R.id.player1_name)
         player1KingdomName = findViewById(R.id.player1_kingdom_name)
-        player1Gold = findViewById(R.id.player1_gold)
-        player1Power = findViewById(R.id.player1_power)
+        player1GoldText = findViewById(R.id.player1_gold)
+        player1PowerText = findViewById(R.id.player1_power)
 
         player2ProfileImage = findViewById(R.id.player2_profile_image)
         player2Name = findViewById(R.id.player2_name)
         player2KingdomName = findViewById(R.id.player2_kingdom_name)
-        player2Gold = findViewById(R.id.player2_gold)
-        player2Power = findViewById(R.id.player2_power)
+        player2GoldText = findViewById(R.id.player2_gold)
+        player2PowerText = findViewById(R.id.player2_power)
 
 
         player1Email = intent.getStringExtra("player1Email")
@@ -151,11 +151,40 @@ class GameActivity : AppCompatActivity() {
                 val player1Bet = data.getInt("player1Bet")
                 val player2Bet = data.getInt("player2Bet")
 
-                gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound / 15\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
+                updateUI(
+                    player1Gold,
+                    player1Power,
+                    player2Gold,
+                    player2Power,
+                    currentCardName,
+                    currentCardPower,
+                    currentCardImage,
+                    currentRound
+                )
 
-                val resourceId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
-                cardImageView.setImageResource(resourceId)
-
+                if (currentEmail == player1Email) {
+                    updateUI(
+                        player1Gold,
+                        player1Power,
+                        player2Gold,
+                        player2Power,
+                        currentCardName,
+                        currentCardPower,
+                        currentCardImage,
+                        currentRound
+                    )
+                } else {
+                    updateUI(
+                        player2Gold,
+                        player2Power,
+                        player1Gold,
+                        player1Power,
+                        currentCardName,
+                        currentCardPower,
+                        currentCardImage,
+                        currentRound
+                    )
+                }
                 AlertDialog.Builder(this)
                     .setTitle("Round ${currentRound-1} Result")
                     .setMessage("Player 1 Bet: $player1Bet\nPlayer 2 Bet: $player2Bet\n")
@@ -177,6 +206,26 @@ class GameActivity : AppCompatActivity() {
             }
         }
         socket.connect()
+    }
+
+    private fun updateUI(
+        player1Gold: Int,
+        player1Power: Int,
+        player2Gold: Int,
+        player2Power: Int,
+        currentCard: String,
+        currentCardPower: Int,
+        currentCardImage: String,
+        currentRound: Int
+    ) {
+        player1GoldText.text = "Gold: $player1Gold"
+        player1PowerText.text = "Power: $player1Power"
+        player2GoldText.text = "Gold: $player2Gold"
+        player2PowerText.text = "Power: $player2Power"
+        gameStatusTextView.text = "Round: $currentRound / 15"
+
+        val resourceId = resources.getIdentifier(currentCardImage.replace(".png", ""), "drawable", packageName)
+        cardImageView.setImageResource(resourceId)
     }
 
     private fun fetchUserInfo(email: String?, isCurrentPlayer: Boolean) {
@@ -269,7 +318,7 @@ class GameActivity : AppCompatActivity() {
                         val currentCardPower = jsonResponse.getInt("currentCardPower")
                         val currentCardImage = jsonResponse.getString("currentCardImage")
 
-                        gameStatusTextView.text = "Card: $currentCardName\nPower: $currentCardPower\nRound: $currentRound / 15\nPlayer 1 Gold: $player1Gold\nPlayer 2 Gold: $player2Gold\nPlayer 1 Power: $player1Power\nPlayer 2 Power: $player2Power"
+                        gameStatusTextView.text = "Round: $currentRound / 15"
 
 
                         // 카드 이미지 설정
