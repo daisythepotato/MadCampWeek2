@@ -558,22 +558,22 @@ app.post("/api/checkUser", async (req, res) => {
 app.post("/api/addGuest", async (req, res) => {
   try {
     // 모든 Guest 계정을 가져옵니다.
-    const guests = await User.find({ email: "" }).sort({ nickname: 1 });
-
-    // Guest 번호를 추적하기 위한 배열 생성
-    const guestNumbers = guests.map((guest) =>
-      parseInt(guest.nickname.replace("Guest", ""))
-    );
-
-    // 첫 번째 비어 있는 Guest 번호를 찾습니다.
+    const guests = await User.find({
+      email: { $regex: /^AuctionKingdomGuest/ },
+    }).sort({ nickname: 1 });
     let newGuestNumber = 1;
-    while (guestNumbers.includes(newGuestNumber)) {
+
+    for (const guest of guests) {
+      const guestNumber = parseInt(guest.nickname.replace("Guest", ""));
+      if (guestNumber !== newGuestNumber) {
+        break;
+      }
       newGuestNumber++;
     }
 
     // 새로운 Guest 계정을 생성합니다.
     const newGuest = new User({
-      email: "AuctionKingdomGuest${newGuestNumber}",
+      email: `AuctionKingdomGuest${newGuestNumber}`,
       nickname: `Guest${newGuestNumber}`,
       kingdomName: `GuestKingdom${newGuestNumber}`,
       score: 0,
@@ -581,6 +581,10 @@ app.post("/api/addGuest", async (req, res) => {
       losses: 0,
       draws: 0,
       coins: 0,
+      profileImage: "profile_image_1",
+      item1: 0,
+      item2: 0,
+      item3: 0,
     });
 
     // 새로운 Guest 계정을 저장합니다.
