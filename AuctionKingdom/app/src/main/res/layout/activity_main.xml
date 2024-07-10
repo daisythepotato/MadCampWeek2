@@ -100,7 +100,7 @@
             android:layout_width="150dp"
             android:layout_height="100dp"
             android:contentDescription="Swords"
-            android:src="@drawable/swords_icon"
+            android:src="@drawable/start_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1"
             app:layout_constraintEnd_toEndOf="parent"

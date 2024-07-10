@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -30,8 +31,8 @@ class RoomActivity : AppCompatActivity() {
 
         email = intent.getStringExtra("email")
 
-        val createRoomButton: Button = findViewById(R.id.create_room_button)
-        val joinRoomButton: Button = findViewById(R.id.join_room_button)
+        val createRoomButton: ImageButton = findViewById(R.id.create_room_button)
+        val joinRoomButton: ImageButton = findViewById(R.id.join_room_button)
         roomsTextView = findViewById(R.id.rooms_text_view)
 
         createRoomButton.setOnClickListener {

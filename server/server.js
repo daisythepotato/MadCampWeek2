@@ -139,6 +139,13 @@ io.on("connection", (socket) => {
 app.post("/api/startGame", async (req, res) => {
   const { player1, player2 } = req.body;
 
+  const existingGame = await Game.findOne({ player1, player2 });
+  if (existingGame) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Game already in progress" });
+  }
+
   const deck = initializeCardDeck();
 
   const newGame = new Game({
@@ -266,16 +273,12 @@ app.post("/api/placeBet", async (req, res) => {
       }
       // 다음 라운드로 진행
       game.currentRound += 1;
-      // 배팅 금액 초기화
-      game.player1Bet = null;
-      game.player2Bet = null;
 
       if (game.currentRound <= 15) {
         const newCard = game.cardDeck[game.currentRound - 1]; // 새로운 카드 제공
         game.currentCardPower = newCard.power;
         game.currentCardName = newCard.name;
         game.currentCardImage = newCard.image;
-        await game.save();
 
         io.to(`${game.player1}-${game.player2}`).emit("roundResult", {
           player1Gold: game.player1Gold,
@@ -286,10 +289,16 @@ app.post("/api/placeBet", async (req, res) => {
           currentCardPower: game.currentCardPower,
           currentCardImage: game.currentCardImage,
           currentRound: game.currentRound,
+          player1Bet: game.player1Bet,
+          player2Bet: game.player2Bet,
         });
       }
-      res.status(200).json({ success: true });
 
+      // 배팅 금액 초기화
+      game.player1Bet = null;
+      game.player2Bet = null;
+      res.status(200).json({ success: true });
+      await game.save();
       // 게임 종료 체크
       await checkGameOver(game);
     } else {
@@ -695,6 +704,32 @@ app.post("/api/checkAvailability", (req, res) => {
   const { field, value } = req.body;
   const isAvailable = !users.some((user) => user[field] === value);
   res.json({ available: isAvailable });
+});
+
+// Update user items and coins
+app.post("/api/updateUserItems", (req, res) => {
+  const { email, item, cost } = req.body;
+  const updateQuery = { email: email };
+  const updateData = {
+    $inc: { coins: -cost, [item]: 1 }, // 아이템 개수 증가 및 코인 차감
+  };
+
+  db.collection("users").updateOne(updateQuery, updateData, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: "Error updating user items" });
+    } else if (result.matchedCount === 0) {
+      res.status(404).json({ error: "User not found" });
+    } else {
+      // 성공 시 새로운 코인 값을 반환
+      db.collection("users").findOne(updateQuery, (err, user) => {
+        if (err || !user) {
+          res.status(500).json({ error: "Error fetching updated user data" });
+        } else {
+          res.json({ coins: user.coins, [item]: user[item] });
+        }
+      });
+    }
+  });
 });
 
 const PORT = process.env.PORT || 80;
