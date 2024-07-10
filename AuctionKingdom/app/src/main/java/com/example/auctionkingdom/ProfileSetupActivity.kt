@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -33,7 +34,7 @@ class ProfileSetupActivity : AppCompatActivity() {
         val kingdomNameResultText: TextView = findViewById(R.id.kingdom_name_result_text)
         val nicknameResultText: TextView = findViewById(R.id.nickname_result_text)
 
-        val checkKingdomButton: Button = findViewById(R.id.check_kingdom_button)
+        val checkKingdomButton: ImageButton = findViewById(R.id.check_kingdom_button)
         checkKingdomButton.setOnClickListener {
             val kingdomName = kingdomNameEditText.text.toString()
             if (kingdomName.isNotEmpty()) {
@@ -43,7 +44,7 @@ class ProfileSetupActivity : AppCompatActivity() {
             }
         }
 
-        val checkNicknameButton: Button = findViewById(R.id.check_nickname_button)
+        val checkNicknameButton: ImageButton = findViewById(R.id.check_nickname_button)
         checkNicknameButton.setOnClickListener {
             val nickname = nicknameEditText.text.toString()
             if (nickname.isNotEmpty()) {
@@ -53,7 +54,7 @@ class ProfileSetupActivity : AppCompatActivity() {
             }
         }
 
-        val saveButton: Button = findViewById(R.id.save_button)
+        val saveButton: ImageButton = findViewById(R.id.save_button)
         saveButton.setOnClickListener {
             val nickname = nicknameEditText.text.toString()
             val kingdomName = kingdomNameEditText.text.toString()

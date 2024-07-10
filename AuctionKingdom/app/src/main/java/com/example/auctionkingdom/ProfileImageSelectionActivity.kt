@@ -3,6 +3,7 @@ package com.example.auctionkingdom
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -62,7 +63,7 @@ class ProfileImageSelectionActivity : AppCompatActivity() {
         profileAgeText = findViewById(R.id.profile_age)
         profileDescriptionText = findViewById(R.id.profile_description)
 
-        val selectButton: Button = findViewById(R.id.select_button)
+        val selectButton: ImageButton = findViewById(R.id.select_button)
 
         viewPager.adapter = ViewPagerAdapter(this, profileImages.map { resources.getIdentifier(it, "drawable", packageName) })
         profileNameText.text = profileNames[0]

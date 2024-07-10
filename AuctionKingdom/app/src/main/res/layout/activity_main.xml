@@ -64,9 +64,10 @@
 
             <ImageView
                 android:id="@+id/coin_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
                 android:src="@drawable/coin_icon"
                 android:contentDescription="Coin Icon" />
 
@@ -82,7 +83,7 @@
                 android:id="@+id/exit_button"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:src="@drawable/baseline_exit_to_app_24"
                 android:contentDescription="Exit Icon" />
         </LinearLayout>

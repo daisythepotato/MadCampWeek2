@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -45,8 +46,8 @@ class EditProfileActivity : AppCompatActivity() {
         profileImageView = findViewById(R.id.profile_image)
         val leftArrow: ImageView = findViewById(R.id.left_arrow)
         val rightArrow: ImageView = findViewById(R.id.right_arrow)
-        val confirmButton: Button = findViewById(R.id.confirm_button)
-        val cancelButton: Button = findViewById(R.id.cancel_button)
+        val confirmButton: ImageButton = findViewById(R.id.confirm_button)
+        val cancelButton: ImageButton = findViewById(R.id.cancel_button)
         val nicknameResultText: TextView = findViewById(R.id.nickname_result_text)
         val kingdomNameResultText: TextView = findViewById(R.id.kingdom_name_result_text)
 
@@ -97,7 +98,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         // 닉네임과 왕국 이름의 중복 확인 버튼 추가
-        val checkNicknameButton: Button = findViewById(R.id.check_nickname_button)
+        val checkNicknameButton: ImageButton = findViewById(R.id.check_nickname_button)
         checkNicknameButton.setOnClickListener {
             val nickname = nicknameInput.text.toString()
             isNicknameNotChanged = false
@@ -108,7 +109,7 @@ class EditProfileActivity : AppCompatActivity() {
             }
         }
 
-        val checkKingdomButton: Button = findViewById(R.id.check_kingdom_button)
+        val checkKingdomButton: ImageButton = findViewById(R.id.check_kingdomName_button)
         checkKingdomButton.setOnClickListener {
             val kingdomName = kingdomNameInput.text.toString()
             isKingdomNameNotChanged = false

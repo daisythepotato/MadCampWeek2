@@ -19,7 +19,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="380dp"
         android:layout_below="@id/choose_you_text"
         android:layout_marginTop="16dp"
         android:layout_centerInParent="true" />
@@ -60,13 +60,18 @@
     </LinearLayout>
 
     <!-- 선택 버튼 -->
-    <Button
+    <ImageButton
         android:id="@+id/select_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center"
         android:layout_below="@id/profile_info_layout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Select" />
+        android:src="@drawable/create_button"
+        android:contentDescription="Create Profile"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="fitCenter" />
 
 </RelativeLayout>
