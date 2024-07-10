@@ -52,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
     private fun showGuestDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Guest Login")
-        builder.setMessage("Do you want to continue as a guest?")
+        builder.setMessage("Do you want to continue as a guest?\nYour gameplay record will not be saved.")
         builder.setPositiveButton("Yes") { dialog, _ ->
             dialog.dismiss()
             addGuestAccount()
@@ -85,7 +85,7 @@ class LoginActivity : AppCompatActivity() {
                         val guest = jsonResponse.getJSONObject("guest")
                         guestNickname = guest.getString("nickname")
                         val intent = Intent(this@LoginActivity, MainActivity::class.java).apply {
-                            putExtra("email", "")
+                            putExtra("email", guest.getString("email"))
                             putExtra("nickname", guest.getString("nickname"))
                             putExtra("kingdomName", guest.getString("kingdomName"))
                         }
@@ -169,39 +169,6 @@ class LoginActivity : AppCompatActivity() {
                     } catch (e: Exception) {
                         Toast.makeText(this@LoginActivity, "Error parsing server response: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
-                }
-            }
-        })
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        guestNickname?.let {
-            deleteGuestAccount(it)
-        }
-    }
-
-    private fun deleteGuestAccount(nickname: String) {
-        val json = JSONObject().apply {
-            put("nickname", nickname)
-        }
-
-        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json.toString())
-        val request = Request.Builder()
-            .url("http://172.10.7.80:80/api/deleteGuest")
-            .post(body)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@LoginActivity, "Failed to delete guest: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    Toast.makeText(this@LoginActivity, "Guest deleted successfully", Toast.LENGTH_SHORT).show()
                 }
             }
         })

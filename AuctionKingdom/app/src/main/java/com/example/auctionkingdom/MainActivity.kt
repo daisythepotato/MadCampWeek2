@@ -9,6 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
@@ -20,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var kingdomNameTextView: TextView
     private lateinit var coinTextView: TextView
     private lateinit var profileImageView: ImageView
+    private lateinit var exitButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         kingdomNameTextView = findViewById(R.id.kingdom_name)
         coinTextView = findViewById(R.id.coin_text)
         profileImageView = findViewById(R.id.profile_image)
+        exitButton = findViewById(R.id.exit_button)
 
         // 사용자 데이터 불러오기
         fetchUserData(email)
@@ -68,6 +72,16 @@ class MainActivity : AppCompatActivity() {
 
         navInfo.setOnClickListener {
             changeIconAndNavigate(navInfo, R.drawable.info_pop_icon, InfoActivity::class.java, email)
+        }
+
+        // 종료 버튼 클릭 이벤트
+        exitButton.setOnClickListener {
+            email?.let {
+                if (it.startsWith("AuctionKingdomGuest")) {
+                    deleteGuestAccount(it)
+                }
+            }
+            finishAndRemoveTask()
         }
     }
 
@@ -136,6 +150,31 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    private fun deleteGuestAccount(email: String) {
+        val json = JSONObject()
+        json.put("email", email)
+
+        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/deleteUser")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // 실패 처리
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    // 성공 처리
+                }
+            }
+        })
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
