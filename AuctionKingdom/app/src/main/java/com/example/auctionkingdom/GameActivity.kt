@@ -198,9 +198,21 @@ class GameActivity : AppCompatActivity() {
         socket.on("gameOver") { args ->
             runOnUiThread {
                 val data = args[0] as JSONObject
-                val message = data.getString("message")
+                val winner = data.getString("winner")
+                val loser = data.getString("loser")
+                val winnerPower = data.getInt("winnerPower")
+                val loserPower = data.getInt("loserPower")
+                val winnerGold = data.getInt("winnerGold")
+                val loserGold = data.getInt("loserGold")
+
                 val intent = Intent(this, GameOverActivity::class.java).apply {
-                    putExtra("message", message)
+                    putExtra("currentEmail",currentEmail)
+                    putExtra("winner", winner)
+                    putExtra("loser",loser)
+                    putExtra("winnerPower",winnerPower)
+                    putExtra("loserPower",loserPower)
+                    putExtra("winnerGold",winnerGold)
+                    putExtra("loserGold",loserGold)
                 }
                 startActivity(intent)
                 finish()
