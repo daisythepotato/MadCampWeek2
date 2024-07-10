@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -26,9 +27,9 @@ class RoomDetailActivity : AppCompatActivity() {
     private lateinit var p2KingdomNameTextView: TextView
     private lateinit var p2ReadyStatusTextView: TextView
     private lateinit var p2ProfileImageView: ImageView
-    private lateinit var leaveRoomButton: Button
-    private lateinit var toggleReadyButton: Button
-    private lateinit var matchButton: Button
+    private lateinit var leaveRoomButton: ImageButton
+    private lateinit var toggleReadyButton: ImageButton
+    private lateinit var matchButton: ImageButton
     private lateinit var socket: Socket
     private var roomCode: String? = null
     private var email: String? = null
