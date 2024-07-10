@@ -79,12 +79,12 @@
                 android:textSize="18sp" />
 
             <ImageView
-                android:id="@+id/settings_icon"
+                android:id="@+id/exit_button"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/settings_icon"
-                android:contentDescription="Settings Icon" />
+                android:src="@drawable/baseline_exit_to_app_24"
+                android:contentDescription="Exit Icon" />
         </LinearLayout>
     </LinearLayout>
 

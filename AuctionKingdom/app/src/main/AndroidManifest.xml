@@ -31,11 +31,12 @@
         <activity android:name=".RoomDetailActivity"/>
         <activity android:name=".ProfileImageSelectionActivity"/>
         <activity android:name=".GameActivity"/>
-        <activity android:name=".LibraryActivity"></activity>
-        <activity android:name=".InfoActivity"></activity>
-        <activity android:name=".RankingActivity"></activity>
-        <activity android:name=".ProfileDetailActivity"></activity>
-        <activity android:name=".EditProfileActivity"></activity>
+        <activity android:name=".LibraryActivity"/>
+        <activity android:name=".InfoActivity"/>
+        <activity android:name=".RankingActivity"/>
+        <activity android:name=".ProfileDetailActivity"/>
+        <activity android:name=".EditProfileActivity"/>
+        <activity android:name=".ShopActivity"></activity>
     </application>
 
 </manifest>
