@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var coinTextView: TextView
     private lateinit var profileImageView: ImageView
     private lateinit var exitButton: ImageView
+    private val SHOP_ACTIVITY_REQUEST_CODE = 1002
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         val navInfo = findViewById<ImageView>(R.id.nav_info)
 
         navShop.setOnClickListener {
-            changeIconAndNavigate(navShop, R.drawable.shop_pop_icon, ShopActivity::class.java, email)
+            changeIconAndNavigateForResult(navShop, R.drawable.shop_pop_icon, ShopActivity::class.java, email)
         }
 
         navTrophy.setOnClickListener {
@@ -91,6 +92,17 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, targetActivity)
             intent.putExtra("email", email)
             startActivity(intent)
+            // 여기서 원래 아이콘으로 복원
+            icon.setImageResource(getOriginalIcon(icon.id))
+        }, 300) // 0.3초 후 페이지 이동
+    }
+
+    private fun changeIconAndNavigateForResult(icon: ImageView, newIconResId: Int, targetActivity: Class<*>, email: String?) {
+        icon.setImageResource(newIconResId)
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = Intent(this, targetActivity)
+            intent.putExtra("email", email)
+            startActivityForResult(intent, SHOP_ACTIVITY_REQUEST_CODE)
             // 여기서 원래 아이콘으로 복원
             icon.setImageResource(getOriginalIcon(icon.id))
         }, 300) // 0.3초 후 페이지 이동
@@ -175,7 +187,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PROFILE_DETAIL_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -189,10 +200,16 @@ class MainActivity : AppCompatActivity() {
                 profileNameTextView.text = nickname
                 kingdomNameTextView.text = kingdomName
             }
+        } else if (requestCode == SHOP_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            data?.let {
+                val newCoins = it.getIntExtra("newCoins", 0)
+                coinTextView.text = newCoins.toString()
+            }
         }
     }
 
     companion object {
         private const val PROFILE_DETAIL_REQUEST_CODE = 1001
+        private const val SHOP_ACTIVITY_REQUEST_CODE = 1002
     }
 }

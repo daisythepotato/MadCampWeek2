@@ -6,11 +6,11 @@
 
     <ImageView
         android:id="@+id/item_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginEnd="8dp"
-        android:contentDescription="Item Image"
-        android:src="@drawable/item_icon_1" />
+        android:src="@drawable/item_icon_1"
+        android:contentDescription="Item Icon" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -18,43 +18,75 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/item_name"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Item Name"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Item Name"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/item_owned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Owned: 0"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/item_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="Item Description"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/item_owned"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Owned: 0"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp" />
+            android:textSize="13sp"
+            android:textColor="@android:color/black"
+            android:maxLines="1"
+            android:ellipsize="end" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/item_cost"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="100"
-        android:textSize="16sp"
-        android:layout_marginEnd="8dp"
-        android:gravity="center_vertical" />
+        android:orientation="vertical"
+        android:gravity="center">
 
-    <Button
-        android:id="@+id/buy_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="구매" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
 
+            <ImageView
+                android:id="@+id/item_cost_icon"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/coin_icon"
+                android:contentDescription="Item Cost Icon" />
+
+            <TextView
+                android:id="@+id/item_cost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100"
+                android:textSize="14sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buy_button"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:background="@drawable/buy_button" />
+    </LinearLayout>
 </LinearLayout>

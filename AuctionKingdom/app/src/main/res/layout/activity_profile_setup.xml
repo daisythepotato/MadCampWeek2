@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:gravity="center_vertical"
     tools:context=".ProfileSetupActivity">
 
     <TextView
@@ -28,14 +29,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter your kingdom name"
+            android:fontFamily="@font/keongkeong"
             android:padding="8dp"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/check_kingdom_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Check"
-            android:layout_marginStart="8dp"/>
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_check"
+            android:contentDescription="Check KingdomName"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerInside" />
     </LinearLayout>
 
     <TextView
@@ -43,6 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
+        android:fontFamily="@font/keongkeong"
         android:visibility="gone"/>
 
     <TextView
@@ -67,14 +73,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter your name"
+            android:fontFamily="@font/keongkeong"
             android:padding="8dp"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/check_nickname_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Check"
-            android:layout_marginStart="8dp"/>
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_check"
+            android:contentDescription="Check Nickname"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerInside" />
     </LinearLayout>
 
     <TextView
@@ -82,13 +92,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
+        android:fontFamily="@font/keongkeong"
         android:visibility="gone"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="생성"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"/>
+        android:src="@drawable/ok_button"
+        android:contentDescription="Create Profile"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside" />
 </LinearLayout>

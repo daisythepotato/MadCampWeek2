@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,7 @@ class ShopActivity : AppCompatActivity() {
     private lateinit var coinTextView: TextView
     private lateinit var itemListRecyclerView: RecyclerView
     private lateinit var email: String
+    var currentCoins: Int = 0 // var로 변경
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,11 +36,10 @@ class ShopActivity : AppCompatActivity() {
         val backButton: ImageView = findViewById(R.id.back_button)
 
         backButton.setOnClickListener {
-            finish()
+            finishWithResult()
         }
 
         fetchUserData()
-        setupItemList()
     }
 
     private fun fetchUserData() {
@@ -59,8 +60,9 @@ class ShopActivity : AppCompatActivity() {
                 runOnUiThread {
                     try {
                         val jsonResponse = JSONObject(responseData)
-                        val coins = jsonResponse.getInt("coins")
-                        coinTextView.text = coins.toString()
+                        currentCoins = jsonResponse.getInt("coins")
+                        coinTextView.text = currentCoins.toString()
+                        setupItemList() // 데이터를 로드한 후 아이템 리스트 설정
                     } catch (e: Exception) {
                         coinTextView.text = "Failed to parse data"
                     }
@@ -71,13 +73,20 @@ class ShopActivity : AppCompatActivity() {
 
     private fun setupItemList() {
         val items = listOf(
-            Item("item1", "몰보냥", 100, "상대의 배팅 금액을 최초 1회 확인한다.", R.drawable.item_icon_1),
-            Item("item2", "부자냥", 200, "시작할 때 200코인 추가 제공받는다.", R.drawable.item_icon_2),
-            Item("item3", "냥평성대", 300, "승리 시 남은 돈의 1.2배를 획득한다.", R.drawable.item_icon_3)
+            Item("item1", "몰보냥", 100, "상대의 배팅금액을 최초 1회 확인.", R.drawable.item_icon_1),
+            Item("item2", "부자냥", 200, "시작할 때 200코인을 추가로 지급.", R.drawable.item_icon_2),
+            Item("item3", "냥평성대", 300, "승리 시 남은 코인의 1.2배 획득.", R.drawable.item_icon_3)
         )
 
         itemListRecyclerView.layoutManager = LinearLayoutManager(this)
-        itemListRecyclerView.adapter = ItemAdapter(items, email, coinTextView, client)
+        itemListRecyclerView.adapter = ItemAdapter(items, email, coinTextView, client, this)
+    }
+
+    private fun finishWithResult() {
+        val resultIntent = Intent()
+        resultIntent.putExtra("newCoins", currentCoins)
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }
 
@@ -87,7 +96,8 @@ class ItemAdapter(
     private val items: List<Item>,
     private val email: String,
     private val coinTextView: TextView,
-    private val client: OkHttpClient
+    private val client: OkHttpClient,
+    private val shopActivity: ShopActivity
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -97,7 +107,7 @@ class ItemAdapter(
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
-        holder.bind(item, email, coinTextView, client)
+        holder.bind(item, email, coinTextView, client, shopActivity)
     }
 
     override fun getItemCount() = items.size
@@ -110,7 +120,7 @@ class ItemAdapter(
         private val buyButton: Button = itemView.findViewById(R.id.buy_button)
         private val itemOwnedTextView: TextView = itemView.findViewById(R.id.item_owned)
 
-        fun bind(item: Item, email: String, coinTextView: TextView, client: OkHttpClient) {
+        fun bind(item: Item, email: String, coinTextView: TextView, client: OkHttpClient, shopActivity: ShopActivity) {
             itemNameTextView.text = item.name
             itemDescriptionTextView.text = item.description
             itemCostTextView.text = item.cost.toString()
@@ -119,10 +129,25 @@ class ItemAdapter(
             fetchItemOwned(email, item.id, itemOwnedTextView, client)
 
             buyButton.setOnClickListener {
-                val json = JSONObject()
-                json.put("email", email)
-                json.put("item", item.id)
-                json.put("cost", item.cost)
+                val currentCoins = shopActivity.currentCoins // shopActivity의 currentCoins를 사용
+                val ownedText = itemOwnedTextView.text.toString()
+                val owned = ownedText.substring(ownedText.indexOf(":") + 2, ownedText.indexOf("/")).toInt()
+
+                if (item.cost > currentCoins) {
+                    Toast.makeText(itemView.context, "코인이 부족합니다", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                if (owned >= 100) {
+                    Toast.makeText(itemView.context, "100개 이상 보유할 수 없습니다", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                val json = JSONObject().apply {
+                    put("email", email)
+                    put("item", item.id)
+                    put("cost", item.cost)
+                }
 
                 val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
@@ -143,6 +168,7 @@ class ItemAdapter(
                             val newCoins = jsonResponse.getInt("coins")
 
                             (itemView.context as AppCompatActivity).runOnUiThread {
+                                shopActivity.currentCoins = newCoins
                                 coinTextView.text = newCoins.toString()
                                 fetchItemOwned(email, item.id, itemOwnedTextView, client)
                             }
@@ -169,9 +195,9 @@ class ItemAdapter(
                         try {
                             val jsonResponse = JSONObject(responseData)
                             val itemOwned = jsonResponse.getInt(itemId)
-                            itemOwnedTextView.text = "Owned: $itemOwned"
+                            itemOwnedTextView.text = "Owned: $itemOwned/100"
                         } catch (e: Exception) {
-                            itemOwnedTextView.text = "Owned: 0"
+                            itemOwnedTextView.text = "Owned: 0/100"
                         }
                     }
                 }

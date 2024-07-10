@@ -80,6 +80,7 @@
             android:layout_height="wrap_content"
             android:text="닉네임"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:textStyle="bold" />
 
         <TextView
@@ -97,8 +98,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/profile_info_container"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="25dp"
         android:layout_marginBottom="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        app:cardBackgroundColor="#aecdef"
         app:cardElevation="2dp"
         app:cardCornerRadius="8dp">
 
