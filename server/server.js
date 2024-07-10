@@ -454,6 +454,7 @@ app.get("/api/getRoomDetails", async (req, res) => {
               nickname: user.nickname,
               kingdomName: user.kingdomName,
               profileImage: user.profileImage,
+              score: user.score,
               ready: player.ready,
             };
           }
@@ -680,6 +681,23 @@ app.get("/api/getUser", (req, res) => {
     }
   });
 });
+
+app.get("/api/getUserInfo", async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (err) {
+    console.error("Error retrieving user data:", err);
+    res.status(500).send("Failed to retrieve user data");
+  }
+});
+
 // 랭킹 데이터를 가져오는 엔드포인트
 app.get("/api/ranking", async (req, res) => {
   try {

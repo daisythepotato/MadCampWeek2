@@ -18,6 +18,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONObject
 import java.io.IOException
 
+data class PlayerInfo(val nickname: String, val kingdomName: String, val profileImage: Int)
+
 class GameActivity : AppCompatActivity() {
 
     private lateinit var gameStatusTextView: TextView
@@ -25,10 +27,23 @@ class GameActivity : AppCompatActivity() {
     private var player1Email: String? = null
     private var player2Email: String? = null
     private var currentEmail: String? = null
+    private var opponentEmail: String? = null
     private val client = OkHttpClient()
     private lateinit var cardImageView: ImageView
     private lateinit var betAmountEditText: EditText
     private lateinit var placeBetButton: Button
+    private lateinit var player1ProfileImage: ImageView
+    private lateinit var player1Name: TextView
+    private lateinit var player1KingdomName: TextView
+    private lateinit var player1Gold: TextView
+    private lateinit var player1Power: TextView
+
+    private lateinit var player2ProfileImage: ImageView
+    private lateinit var player2Name: TextView
+    private lateinit var player2KingdomName: TextView
+    private lateinit var player2Gold: TextView
+    private lateinit var player2Power: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,12 +54,25 @@ class GameActivity : AppCompatActivity() {
         betAmountEditText = findViewById(R.id.bet_amount_edit_text)
         placeBetButton = findViewById(R.id.place_bet_button)
 
+        player1ProfileImage = findViewById(R.id.player1_profile_image)
+        player1Name = findViewById(R.id.player1_name)
+        player1KingdomName = findViewById(R.id.player1_kingdom_name)
+        player1Gold = findViewById(R.id.player1_gold)
+        player1Power = findViewById(R.id.player1_power)
+
+        player2ProfileImage = findViewById(R.id.player2_profile_image)
+        player2Name = findViewById(R.id.player2_name)
+        player2KingdomName = findViewById(R.id.player2_kingdom_name)
+        player2Gold = findViewById(R.id.player2_gold)
+        player2Power = findViewById(R.id.player2_power)
+
+
         player1Email = intent.getStringExtra("player1Email")
         player2Email = intent.getStringExtra("player2Email")
         currentEmail = intent.getStringExtra("currentEmail")
-
-        gameStatusTextView.text = "Player 1: $player1Email\nPlayer 2: $player2Email"
-
+        opponentEmail = if (currentEmail == player1Email) player2Email else player1Email
+        fetchUserInfo(currentEmail, true)
+        fetchUserInfo(opponentEmail, false)
         setupSocket()
 
         socket.emit("joinRoom", "$player1Email-$player2Email")
@@ -151,6 +179,44 @@ class GameActivity : AppCompatActivity() {
         socket.connect()
     }
 
+    private fun fetchUserInfo(email: String?, isCurrentPlayer: Boolean) {
+        val request = Request.Builder()
+            .url("http://172.10.7.80:80/api/getUserInfo?email=$email")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@GameActivity, "Failed to fetch user info", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseData = response.body?.string()
+                runOnUiThread {
+                    try {
+                        val jsonResponse = JSONObject(responseData)
+                        if (isCurrentPlayer) {
+                            player1Name.text = jsonResponse.getString("nickname")
+                            player1KingdomName.text = jsonResponse.getString("kingdomName")
+                            val player1ImageName = jsonResponse.getString("profileImage")
+                            val resId = resources.getIdentifier(player1ImageName, "drawable", packageName)
+                            player1ProfileImage.setImageResource(resId)
+                        } else {
+                            player2Name.text = jsonResponse.getString("nickname")
+                            player2KingdomName.text = jsonResponse.getString("kingdomName")
+                            val player2ImageName = jsonResponse.getString("profileImage")
+                            val resId = resources.getIdentifier(player2ImageName, "drawable", packageName)
+                            player2ProfileImage.setImageResource(resId)
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this@GameActivity, "Failed to parse user info", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
 
     private fun startGame(player1: String, player2: String) {
         val json = JSONObject().apply {
