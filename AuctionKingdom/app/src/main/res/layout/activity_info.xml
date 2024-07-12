@@ -34,126 +34,133 @@
 
     </RelativeLayout>
 
-    <!-- 설명 텍스트 -->
-    <TextView
-        android:id="@+id/info_text"
+    <!-- 스크롤 가능한 내용 영역 -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/top_bar"
-        android:layout_margin="16dp"
-        android:text="아주 오래전 야옹 왕국에는 네 고양이 왕이 있었다.\n극심한 자원 경쟁과 자본주의로 인해 네 고양이 왕은 경매로 왕국을 세우고 세력을 유지하려고 하는데...\n왕국을 이루는 요소에 알맞은 금액을 투자하여 나라를 강대국으로 만드세요!"
-        android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_bar">
 
-    <!-- 게임 화면 이미지 및 설명 텍스트 1 -->
-    <LinearLayout
-        android:id="@+id/section_1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/info_text"
-        android:layout_margin="16dp"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/game_image_1"
-            android:layout_width="0dp"
-            android:layout_height="200dp"
-            android:layout_weight="1"
-            android:src="@drawable/game_image_1"
-            android:scaleType="fitCenter"
-            android:contentDescription="게임 화면 1" />
-
-        <TextView
-            android:id="@+id/additional_info_text_1"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="1. Start를 누르고 방을 만들거나 만들어진 방에 들어가세요!"
-            android:textSize="16sp"
-            android:layout_marginStart="16dp" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <!-- 게임 화면 이미지 및 설명 텍스트 2 -->
-    <LinearLayout
-        android:id="@+id/section_2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/section_1"
-        android:layout_margin="16dp"
-        android:orientation="horizontal">
+            <!-- 설명 텍스트 -->
+            <TextView
+                android:id="@+id/info_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="아주 오래전 야옹 왕국에는 네 고양이 왕이 있었다.\n극심한 자원 경쟁과 자본주의로 인해 네 고양이 왕은 경매로 왕국을 세우고 세력을 유지하려고 하는데...\n왕국을 이루는 요소에 알맞은 금액을 투자하여 나라를 강대국으로 만드세요!"
+                android:textSize="16sp" />
 
-        <ImageView
-            android:id="@+id/game_image_2"
-            android:layout_width="0dp"
-            android:layout_height="200dp"
-            android:layout_weight="1"
-            android:src="@drawable/game_image_2"
-            android:scaleType="fitCenter"
-            android:contentDescription="게임 화면 2" />
+            <!-- 게임 화면 이미지 및 설명 텍스트 1 -->
+            <LinearLayout
+                android:id="@+id/section_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/additional_info_text_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="2. Ready 하세요! 곧 두 고양이 왕의 전투가 시작됩니다."
-            android:textSize="16sp"
-            android:layout_marginStart="16dp" />
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/game_image_1"
+                    android:layout_width="0dp"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/game_image_1"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="게임 화면 1" />
 
-    <!-- 게임 화면 이미지 및 설명 텍스트 3 -->
-    <LinearLayout
-        android:id="@+id/section_3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/section_2"
-        android:layout_margin="16dp"
-        android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/additional_info_text_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="1. Start를 누르고 방을 만들거나 만들어진 방에 들어가세요!"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/game_image_3"
-            android:layout_width="0dp"
-            android:layout_height="200dp"
-            android:layout_weight="1"
-            android:src="@drawable/game_image_3"
-            android:scaleType="fitCenter"
-            android:contentDescription="게임 화면 3" />
+            <!-- 게임 화면 이미지 및 설명 텍스트 2 -->
+            <LinearLayout
+                android:id="@+id/section_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/additional_info_text_3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="3. 15라운드 동안 왕국을 이루는 요소가 하나씩 나타납니다!\n두 왕에게는 동일하게 10000코인이 주어지지만 적재적소에 배팅하여 중요한 요소를 가져오는 것은 왕의 기량!\n더 많이 배팅한 왕이 요소를 가져옵니다."
-            android:textSize="16sp"
-            android:layout_marginStart="16dp" />
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/game_image_2"
+                    android:layout_width="0dp"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/game_image_2"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="게임 화면 2" />
 
-    <!-- 게임 화면 이미지 및 설명 텍스트 4 -->
-    <LinearLayout
-        android:id="@+id/section_4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/section_3"
-        android:layout_margin="16dp"
-        android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/additional_info_text_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2. Ready 하세요! 곧 두 고양이 왕의 전투가 시작됩니다."
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/game_image_4"
-            android:layout_width="0dp"
-            android:layout_height="200dp"
-            android:layout_weight="1"
-            android:src="@drawable/game_image_4"
-            android:scaleType="fitCenter"
-            android:contentDescription="게임 화면 4" />
+            <!-- 게임 화면 이미지 및 설명 텍스트 3 -->
+            <LinearLayout
+                android:id="@+id/section_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/additional_info_text_4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="4. 15라운드가 끝나고 나면 얻은 요소들의 국력을 계산하여 승자가 선정됩니다!\n그럼 시작해볼까요?"
-            android:textSize="16sp"
-            android:layout_marginStart="16dp" />
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/game_image_3"
+                    android:layout_width="0dp"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/game_image_3"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="게임 화면 3" />
 
+                <TextView
+                    android:id="@+id/additional_info_text_3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="3. 15라운드 동안 왕국을 이루는 요소가 하나씩 나타납니다!\n두 왕에게는 동일하게 10000코인이 주어지지만 적재적소에 배팅하여 중요한 요소를 가져오는 것은 왕의 기량!\n더 많이 배팅한 왕이 요소를 가져옵니다."
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <!-- 게임 화면 이미지 및 설명 텍스트 4 -->
+            <LinearLayout
+                android:id="@+id/section_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/game_image_4"
+                    android:layout_width="0dp"
+                    android:layout_height="200dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/game_image_4"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="게임 화면 4" />
+
+                <TextView
+                    android:id="@+id/additional_info_text_4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="4. 15라운드가 끝나고 나면 얻은 요소들의 국력을 계산하여 승자가 선정됩니다!\n그럼 시작해볼까요?"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

@@ -219,31 +219,25 @@ app.post("/api/placeBet", async (req, res) => {
     //배팅 값 확인 및 배팅
     if (playerEmail === game.player1 && game.player1Bet == null) {
       if (betAmount > game.player1Gold) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Bet amount exceeds available gold",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Bet amount exceeds available gold",
+        });
       }
       game.player1Bet = betAmount;
     } else if (playerEmail === game.player2 && game.player2Bet == null) {
       if (betAmount > game.player2Gold) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Bet amount exceeds available gold",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Bet amount exceeds available gold",
+        });
       }
       game.player2Bet = betAmount;
     } else {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid player or bet already placed",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid player or bet already placed",
+      });
     }
     await game.save();
 
@@ -634,7 +628,7 @@ app.post("/api/saveUser", async (req, res) => {
     wins: 0,
     losses: 0,
     draws: 0,
-    coins: 0,
+    coins: 1000,
     profileImage,
     item1: 0,
     item2: 0,

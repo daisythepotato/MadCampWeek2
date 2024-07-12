@@ -62,8 +62,8 @@
     <!-- 선택 버튼 -->
     <ImageButton
         android:id="@+id/select_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_gravity="center"
