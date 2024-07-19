@@ -19,7 +19,7 @@ YaOng 2: AuctionKingdom은 2인이서 플레이할 수 있는 전략 게임입�
 
 [조성제](https://www.notion.so/544fcc087dd04ec0b5125dc16c3cab03?pvs=21) 
 
-[🌲김해담솔](https://www.notion.so/36b8f992a3f3484a9eee2696e25bbdb5?pvs=21)
+[김해담솔](https://www.notion.so/36b8f992a3f3484a9eee2696e25bbdb5?pvs=21)
 
 ## Details
 
@@ -83,6 +83,7 @@ YaOng 2: AuctionKingdom은 2인이서 플레이할 수 있는 전략 게임입�
 
 
 - 15라운드가 모두 지나면 게임 결과를 반영해 두 플레이어에게 게임 결과 화면이 표시됩니다.
+
 
 
 
