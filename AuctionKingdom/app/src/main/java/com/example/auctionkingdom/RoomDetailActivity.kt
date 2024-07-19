@@ -29,6 +29,9 @@ class RoomDetailActivity : AppCompatActivity() {
     private lateinit var p2ReadyStatusTextView: TextView
     private lateinit var p2ProfileImageView: ImageView
     private lateinit var p2ScoreFlagImageView: ImageView
+    private lateinit var item1Button: ImageButton
+    private lateinit var item2Button: ImageButton
+    private lateinit var item3Button: ImageButton
     private lateinit var leaveRoomButton: ImageButton
     private lateinit var toggleReadyButton: ImageButton
     private lateinit var matchButton: ImageButton
@@ -50,6 +53,9 @@ class RoomDetailActivity : AppCompatActivity() {
         p2ReadyStatusTextView = findViewById(R.id.p2_ready_status_text_view)
         p2ProfileImageView = findViewById(R.id.p2_profile_image_view)
         p2ScoreFlagImageView = findViewById(R.id.p2_score_flag_image_view)
+        item1Button = findViewById(R.id.item1_button)
+        item2Button = findViewById(R.id.item2_button)
+        item3Button = findViewById(R.id.item3_button)
         leaveRoomButton = findViewById(R.id.leave_room_button)
         toggleReadyButton = findViewById(R.id.toggle_ready_button)
         matchButton = findViewById(R.id.match_button)
@@ -63,6 +69,18 @@ class RoomDetailActivity : AppCompatActivity() {
             fetchRoomDetails(roomCode!!)
         } else {
             Toast.makeText(this, "Room code or email not found", Toast.LENGTH_SHORT).show()
+        }
+
+        item1Button.setOnClickListener {
+            toggleItemSelection(item1Button)
+        }
+
+        item2Button.setOnClickListener {
+            toggleItemSelection(item2Button)
+        }
+
+        item3Button.setOnClickListener {
+            toggleItemSelection(item3Button)
         }
 
         leaveRoomButton.setOnClickListener {
@@ -134,6 +152,14 @@ class RoomDetailActivity : AppCompatActivity() {
         finish()
     }
 
+
+    private fun toggleItemSelection(button: ImageButton) {
+        if (button.alpha == 0.5f) {
+            button.alpha = 1.0f
+        } else {
+            button.alpha = 0.5f
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()
